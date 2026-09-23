@@ -1,0 +1,431 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum Role {
+  STUDENT
+  ADMIN
+  INSTRUCTOR
+  DIRECTOR
+}
+
+enum EnrollmentStatus {
+  ACTIVE
+  COMPLETED
+  EXPIRED
+  CANCELLED
+  BLOCKED
+}
+
+enum LeadStatus {
+  NEW
+  CONTACTED
+  INTERESTED
+  FOLLOW_UP
+  ENROLLED
+  LOST
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}
+
+enum ContentType {
+  HERO
+  FEATURES
+  TESTIMONIALS
+  PRICING
+  FAQ
+  CTA
+}
+
+model User {
+  id               String    @id @default(cuid())
+  name             String?
+  email            String    @unique
+  emailVerified    DateTime?
+  image            String?
+  password         String?
+  role             Role      @default(STUDENT)
+  stripeCustomerId String?   @unique
+
+  // Perfil
+  phone         String?
+  bio           String?   @db.Text
+  dateOfBirth   DateTime?
+  country       String?
+  city          String?
+  currentLevel  String? // Beginner, Intermediate, Advanced
+  learningGoals String?   @db.Text
+
+  // Estado da conta
+  isActive      Boolean   @default(true)
+  isBlocked     Boolean   @default(false)
+  blockedAt     DateTime?
+  blockedReason String?
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  lastLoginAt DateTime?
+
+  accounts      Account[]
+  sessions      Session[]
+  enrollments   Enrollment[]
+  progress      LessonProgress[]
+  subscriptions Subscription[]
+  certificates  Certificate[]
+  crmLeads      CRMLead[]
+  activities    ActivityLog[]
+  notifications Notification[]
+  transactions  Transaction[]
+  courseReviews CourseReview[]
+
+  @@index([email])
+  @@index([role])
+  @@index([isActive])
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model Course {
+  id          String  @id @default(cuid())
+  title       String
+  slug        String  @unique
+  description String? @db.Text
+
+  price           Decimal @default(0) @db.Decimal(10, 2)
+  currency        String  @default("EUR")
+  stripeProductId String? @unique
+  stripePriceId   String? @unique
+
+  thumbnailUrl String?
+  level        String? // Beginner, Intermediate, Advanced
+  category     String?
+  duration     Int? // Duração total em minutos
+  language     String  @default("pt")
+  isPublished  Boolean @default(false)
+  isFeatured   Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  modules      Module[]
+  enrollments  Enrollment[]
+  reviews      CourseReview[]
+  certificates Certificate[]
+
+  @@index([slug])
+  @@index([isPublished])
+  @@index([level])
+}
+
+model Module {
+  id          String  @id @default(cuid())
+  courseId    String
+  title       String
+  description String? @db.Text
+  order       Int
+
+  course  Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  lessons Lesson[]
+
+  @@index([courseId])
+  @@index([order])
+}
+
+model Lesson {
+  id             String  @id @default(cuid())
+  moduleId       String
+  title          String
+  youtubeVideoId String
+  duration       Int // Duração em segundos
+  order          Int
+  content        String? @db.Text
+  resources      Json? // PDFs, links de apoio
+  isFree         Boolean @default(false) // Aula de amostra, sem matrícula
+  isPublished    Boolean @default(true)
+
+  module   Module           @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  progress LessonProgress[]
+
+  @@index([moduleId])
+  @@index([order])
+}
+
+model Enrollment {
+  id         String           @id @default(cuid())
+  userId     String
+  courseId   String
+  status     EnrollmentStatus @default(ACTIVE)
+  startDate  DateTime         @default(now())
+  endDate    DateTime?
+  accessDays Int? // null = acesso vitalício
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, courseId])
+  @@index([userId])
+  @@index([courseId])
+  @@index([status])
+}
+
+model LessonProgress {
+  id       String @id @default(cuid())
+  userId   String
+  lessonId String
+
+  isCompleted          Boolean @default(false)
+  lastWatchedTimestamp Int     @default(0) // Segundos
+  completionPercentage Int     @default(0) // 0-100
+  totalTimeWatched     Int     @default(0) // Segundos acumulados
+  watchCount           Int     @default(0)
+
+  updatedAt DateTime @updatedAt
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, lessonId])
+  @@index([userId])
+  @@index([lessonId])
+  @@index([isCompleted])
+}
+
+model Certificate {
+  id                String    @id @default(cuid())
+  userId            String
+  courseId          String
+  certificateNumber String    @unique
+  issuedAt          DateTime  @default(now())
+  expiresAt         DateTime?
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([certificateNumber])
+}
+
+model CRMLead {
+  id     String  @id @default(cuid())
+  userId String? // preenchido quando o lead vira aluno
+
+  name   String
+  email  String
+  phone  String?
+  source String? // Instagram, Facebook, Google, Referral
+
+  status   LeadStatus @default(NEW)
+  priority String     @default("MEDIUM") // LOW, MEDIUM, HIGH
+
+  notes String?  @db.Text
+  tags  String[]
+
+  lastContactDate DateTime?
+  nextFollowUp    DateTime?
+  assignedTo      String? // id do Admin responsável
+
+  convertedAt  DateTime?
+  enrollmentId String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([email])
+  @@index([status])
+  @@index([source])
+  @@index([createdAt])
+}
+
+model ActivityLog {
+  id         String  @id @default(cuid())
+  userId     String
+  action     String // LOGIN, COURSE_STARTED, LESSON_COMPLETED, PURCHASE, etc.
+  entityType String?
+  entityId   String?
+  metadata   Json?
+
+  ipAddress String?
+  userAgent String?
+
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([action])
+  @@index([createdAt])
+}
+
+model Transaction {
+  id           String  @id @default(cuid())
+  userId       String
+  enrollmentId String?
+
+  amount   Decimal @db.Decimal(10, 2)
+  currency String  @default("EUR")
+
+  stripePaymentIntentId   String?
+  stripeCheckoutSessionId String?
+
+  status      PaymentStatus @default(PENDING)
+  type        String // SUBSCRIPTION, ONE_TIME, REFUND
+  description String?       @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model CMSContent {
+  id          String      @id @default(cuid())
+  page        String      @default("landing") // landing, about, pricing
+  contentType ContentType
+
+  title    String
+  subtitle String?
+  body     Json?
+  media    String[]
+
+  order    Int     @default(0)
+  isActive Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([page])
+  @@index([contentType])
+  @@index([isActive])
+}
+
+model Testimonial {
+  id          String  @id @default(cuid())
+  authorName  String
+  authorImage String?
+  content     String  @db.Text
+  rating      Int     @default(5)
+  courseId    String?
+
+  isActive   Boolean @default(true)
+  isFeatured Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([isActive])
+  @@index([rating])
+}
+
+model Notification {
+  id      String @id @default(cuid())
+  userId  String
+  title   String
+  message String @db.Text
+  type    String // SYSTEM, COURSE, PROMOTION
+
+  isRead Boolean   @default(false)
+  readAt DateTime?
+  link   String?
+
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([isRead])
+  @@index([createdAt])
+}
+
+model SystemConfig {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     Json
+  updatedAt DateTime @updatedAt
+
+  @@index([key])
+}
+
+model CourseReview {
+  id       String  @id @default(cuid())
+  userId   String
+  courseId String
+  rating   Int // 1-5
+  comment  String? @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, courseId])
+  @@index([courseId])
+  @@index([rating])
+}
+
+model Subscription {
+  id                   String   @id @default(cuid())
+  userId               String
+  stripeSubscriptionId String   @unique
+  status               String
+  currentPeriodEnd     DateTime
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
