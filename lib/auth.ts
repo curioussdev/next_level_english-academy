@@ -22,10 +22,17 @@ import type { AppRole } from '@/lib/constants/roles'
  */
 const DEMO_LOGIN_ENABLED = process.env.NODE_ENV !== 'production' && process.env.DEMO_MODE === 'true'
 const DEMO_PASSWORD = 'password123'
-const DEMO_USERS: Record<string, { id: string; name: string; email: string; role: AppRole }> = {
+const DEMO_USERS: Record<string, { id: string; name: string; email: string; role: AppRole; permissions?: string[] }> = {
   'aluno@nextlevel.pt': { id: 'demo-student', name: 'Aluno Demo', email: 'aluno@nextlevel.pt', role: 'STUDENT' },
   'admin@nextlevel.pt': { id: 'demo-admin', name: 'Admin Demo', email: 'admin@nextlevel.pt', role: 'ADMIN' },
   'ralde@nextlevel.pt': { id: 'demo-director', name: 'Ralde Sicato', email: 'ralde@nextlevel.pt', role: 'DIRECTOR' },
+  'subadmin@nextlevel.pt': {
+    id: 'demo-tenant-admin',
+    name: 'Sub-admin Demo',
+    email: 'subadmin@nextlevel.pt',
+    role: 'TENANT_ADMIN',
+    permissions: ['students', 'courses'],
+  },
 }
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
@@ -58,7 +65,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
           if (user.isBlocked) return null
 
-          return { id: user.id, email: user.email, name: user.name, role: user.role }
+          return { id: user.id, email: user.email, name: user.name, role: user.role, permissions: user.permissions }
         } catch (err) {
           if (DEMO_LOGIN_ENABLED) {
             const demoUser = DEMO_USERS[email]

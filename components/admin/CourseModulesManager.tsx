@@ -48,7 +48,7 @@ function ModuleCard({ courseId, module: courseModule }: { courseId: string; modu
   }
 
   return (
-    <div className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-100">
+    <div className="rounded-3xl bg-white dark:bg-slate-900 p-5 shadow-sm ring-1 ring-slate-100 dark:ring-slate-800">
       <div className="flex items-center justify-between">
         <h3 className="font-bold">
           {courseModule.order}. {courseModule.title}
@@ -82,7 +82,7 @@ function ModuleCard({ courseId, module: courseModule }: { courseId: string; modu
         <button
           type="button"
           onClick={() => setShowAddLesson(true)}
-          className="mt-3 flex min-h-9 items-center gap-1 text-sm font-semibold text-violet-600 hover:text-violet-800"
+          className="mt-3 flex min-h-9 items-center gap-1 text-sm font-semibold text-violet-600 dark:text-violet-400 hover:text-violet-800"
         >
           <Plus size={14} /> Adicionar aula
         </button>
@@ -107,11 +107,11 @@ function LessonRow({ courseId, lesson }: { courseId: string; lesson: Lesson }) {
 
   return (
     <div className="flex items-center gap-3 rounded-xl px-3 py-2 text-sm hover:bg-slate-50">
-      <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-slate-100 text-xs text-slate-500">
+      <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-slate-100 text-xs text-slate-500 dark:text-slate-400">
         {lesson.order}
       </span>
-      <span className="flex-1 text-slate-700">{lesson.title}</span>
-      {lesson.isFree && <span className="rounded-full bg-teal-50 px-2 py-0.5 text-[10px] font-bold text-teal-700">GRÁTIS</span>}
+      <span className="flex-1 text-slate-700 dark:text-slate-200">{lesson.title}</span>
+      {lesson.isFree && <span className="rounded-full bg-teal-50 dark:bg-teal-500/10 px-2 py-0.5 text-[10px] font-bold text-teal-700 dark:text-teal-300">GRÁTIS</span>}
       <span className="text-xs text-slate-400">{formatDuration(lesson.duration)}</span>
       <button
         type="button"
@@ -140,13 +140,13 @@ function AddModuleForm({ courseId, nextOrder }: { courseId: string; nextOrder: n
   }
 
   return (
-    <form action={handleSubmit} className="flex gap-2 rounded-3xl border border-dashed border-slate-200 p-4">
+    <form action={handleSubmit} className="flex gap-2 rounded-3xl border border-dashed border-slate-200 dark:border-slate-700 p-4">
       <input type="hidden" name="order" value={nextOrder} />
       <input
         name="title"
         placeholder="Título do novo módulo"
         required
-        className="h-11 flex-1 rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none placeholder:text-slate-400 focus:border-violet-500 focus:ring-2 focus:ring-violet-100"
+        className="h-11 flex-1 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 text-sm text-slate-900 dark:text-white outline-none placeholder:text-slate-400 focus:border-violet-500 focus:ring-2 focus:ring-violet-100"
       />
       <button
         type="submit"
@@ -184,20 +184,20 @@ function AddLessonForm({
   }
 
   return (
-    <form action={handleSubmit} className="mt-3 space-y-2 rounded-xl border border-dashed border-slate-200 p-3">
+    <form action={handleSubmit} className="mt-3 space-y-2 rounded-xl border border-dashed border-slate-200 dark:border-slate-700 p-3">
       <input type="hidden" name="order" value={nextOrder} />
       <input
         name="title"
         placeholder="Título da aula"
         required
-        className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none placeholder:text-slate-400 focus:border-violet-500"
+        className="h-10 w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 text-sm text-slate-900 dark:text-white outline-none placeholder:text-slate-400 focus:border-violet-500"
       />
       <div className="flex gap-2">
         <input
           name="youtubeVideoId"
           placeholder="ID do vídeo no YouTube"
           required
-          className="h-10 flex-1 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none placeholder:text-slate-400 focus:border-violet-500"
+          className="h-10 flex-1 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 text-sm text-slate-900 dark:text-white outline-none placeholder:text-slate-400 focus:border-violet-500"
         />
         <input
           name="duration"
@@ -205,10 +205,10 @@ function AddLessonForm({
           min="0"
           placeholder="Duração (s)"
           required
-          className="h-10 w-32 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none placeholder:text-slate-400 focus:border-violet-500"
+          className="h-10 w-32 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 text-sm text-slate-900 dark:text-white outline-none placeholder:text-slate-400 focus:border-violet-500"
         />
       </div>
-      <label className="flex items-center gap-2 text-xs text-slate-500">
+      <label className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
         <input type="checkbox" name="isFree" className="h-4 w-4 rounded border-slate-300" />
         Aula grátis (amostra)
       </label>
@@ -223,7 +223,7 @@ function AddLessonForm({
         <button
           type="button"
           onClick={onDone}
-          className="flex min-h-9 items-center rounded-lg px-3 text-xs font-semibold text-slate-500 hover:bg-slate-50"
+          className="flex min-h-9 items-center rounded-lg px-3 text-xs font-semibold text-slate-500 dark:text-slate-400 hover:bg-slate-50"
         >
           Cancelar
         </button>

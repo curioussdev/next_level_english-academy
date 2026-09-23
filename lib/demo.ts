@@ -79,6 +79,7 @@ export const DEMO_USERS_LIST = [
   { id: 'demo-user-2', name: 'André Pereira', email: 'andre@example.pt', role: 'STUDENT' as const, isBlocked: false, createdAt: new Date('2026-07-03') },
   { id: 'demo-user-3', name: 'Camila Souza', email: 'camila@example.pt', role: 'STUDENT' as const, isBlocked: true, createdAt: new Date('2026-05-20') },
   { id: 'demo-admin', name: 'Admin Demo', email: 'admin@nextlevel.pt', role: 'ADMIN' as const, isBlocked: false, createdAt: new Date('2026-01-10') },
+  { id: 'demo-tenant-admin', name: 'Sub-admin Demo', email: 'subadmin@nextlevel.pt', role: 'TENANT_ADMIN' as const, isBlocked: false, createdAt: new Date('2026-02-01') },
 ]
 
 export const DEMO_LEADS = [

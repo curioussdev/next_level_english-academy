@@ -17,19 +17,19 @@ export default async function StudentCoursesPage() {
       <h1 className="text-3xl font-bold tracking-tight">Meus cursos</h1>
 
       {enrolled.length === 0 ? (
-        <p className="mt-4 text-slate-500">Ainda não está matriculado em nenhum curso.</p>
+        <p className="mt-4 text-slate-500 dark:text-slate-400">Ainda não está matriculado em nenhum curso.</p>
       ) : (
         <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {enrolled.map((item) => (
-            <div key={item.id} className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-100">
-              <p className="text-xs font-semibold uppercase tracking-wider text-violet-600">{item.level ?? 'Curso'}</p>
+            <div key={item.id} className="rounded-3xl bg-white dark:bg-slate-900 p-5 shadow-sm ring-1 ring-slate-100 dark:ring-slate-800">
+              <p className="text-xs font-semibold uppercase tracking-wider text-violet-600 dark:text-violet-400">{item.level ?? 'Curso'}</p>
               <h3 className="mt-2 text-lg font-bold">{item.courseTitle}</h3>
               <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-slate-100">
                 <div className="h-full rounded-full bg-violet-500" style={{ width: `${item.percentage}%` }} />
               </div>
               <div className="mt-2 flex items-center justify-between text-xs text-slate-400">
                 <span>Progresso</span>
-                <b className="text-slate-700">{item.percentage}%</b>
+                <b className="text-slate-700 dark:text-slate-200">{item.percentage}%</b>
               </div>
               {item.firstLessonId && (
                 <Link
@@ -49,10 +49,10 @@ export default async function StudentCoursesPage() {
           <h2 className="mt-12 text-xl font-bold">Cursos disponíveis</h2>
           <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {available.map((course) => (
-              <div key={course.id} className="rounded-3xl border border-slate-200 bg-white p-5">
-                <p className="text-xs font-semibold uppercase tracking-wider text-violet-600">{course.level ?? 'Curso'}</p>
+              <div key={course.id} className="rounded-3xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-5">
+                <p className="text-xs font-semibold uppercase tracking-wider text-violet-600 dark:text-violet-400">{course.level ?? 'Curso'}</p>
                 <h3 className="mt-2 text-lg font-bold">{course.title}</h3>
-                {course.description && <p className="mt-2 line-clamp-2 text-sm text-slate-500">{course.description}</p>}
+                {course.description && <p className="mt-2 line-clamp-2 text-sm text-slate-500 dark:text-slate-400">{course.description}</p>}
                 <p className="mt-4 text-2xl font-bold">{formatCurrency(course.price, course.currency)}</p>
                 <CourseBuyButton courseId={course.id} />
               </div>

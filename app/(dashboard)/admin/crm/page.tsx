@@ -21,7 +21,7 @@ export default async function AdminCrmPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">CRM — Leads</h1>
-          <p className="mt-2 text-slate-500">Arraste os cartões entre colunas ou use o seletor de status.</p>
+          <p className="mt-2 text-slate-500 dark:text-slate-400">Arraste os cartões entre colunas ou use o seletor de status.</p>
         </div>
         <Link
           href="/admin/crm/new"

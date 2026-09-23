@@ -15,11 +15,11 @@ export default async function StudentProgressPage() {
       <h1 className="text-3xl font-bold tracking-tight">O seu progresso</h1>
 
       {courses.length === 0 ? (
-        <p className="mt-4 text-slate-500">Matricule-se num curso para acompanhar o seu progresso aqui.</p>
+        <p className="mt-4 text-slate-500 dark:text-slate-400">Matricule-se num curso para acompanhar o seu progresso aqui.</p>
       ) : (
         <div className="mt-6 space-y-6">
           {courses.map((course) => (
-            <div key={course.courseId} className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-100">
+            <div key={course.courseId} className="rounded-3xl bg-white dark:bg-slate-900 p-6 shadow-sm ring-1 ring-slate-100 dark:ring-slate-800">
               <h2 className="text-lg font-bold">{course.courseTitle}</h2>
               <div className="mt-4 space-y-6">
                 {course.modules.map((courseModule) => (
@@ -35,7 +35,7 @@ export default async function StudentProgressPage() {
                           >
                             {lesson.isCompleted ? <Check size={14} /> : <span className="text-xs">{lesson.order}</span>}
                           </span>
-                          <span className="flex-1 text-slate-700">{lesson.title}</span>
+                          <span className="flex-1 text-slate-700 dark:text-slate-200">{lesson.title}</span>
                           {lesson.totalTimeWatched > 0 && (
                             <span className="text-xs text-slate-400">{formatDuration(lesson.totalTimeWatched)}</span>
                           )}

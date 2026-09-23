@@ -67,7 +67,7 @@ export function LeadBoard({ leads: initialLeads }: { leads: Lead[] }) {
           >
             <div className="flex items-center gap-2 px-1">
               <span className={`h-2 w-2 rounded-full ${column.color}`} />
-              <h3 className="text-sm font-bold text-slate-700">{column.title}</h3>
+              <h3 className="text-sm font-bold text-slate-700 dark:text-slate-200">{column.title}</h3>
               <span className="text-xs text-slate-400">{columnLeads.length}</span>
             </div>
             <div className="mt-3 min-h-16 space-y-2 rounded-2xl bg-slate-100/60 p-2">
@@ -92,17 +92,17 @@ function LeadCard({
   onDelete: (leadId: string) => void
 }) {
   const priorityClass =
-    lead.priority === 'HIGH' ? 'bg-red-50 text-red-600' : lead.priority === 'LOW' ? 'bg-slate-100 text-slate-500' : 'bg-amber-50 text-amber-700'
+    lead.priority === 'HIGH' ? 'bg-red-50 dark:bg-red-500/10 text-red-600' : lead.priority === 'LOW' ? 'bg-slate-100 text-slate-500' : 'bg-amber-50 dark:bg-amber-500/10 text-amber-700'
 
   return (
     <div
       draggable
       onDragStart={(e) => e.dataTransfer.setData('text/plain', lead.id)}
-      className="cursor-grab space-y-2 rounded-2xl bg-white p-3 shadow-sm ring-1 ring-slate-100 active:cursor-grabbing"
+      className="cursor-grab space-y-2 rounded-2xl bg-white dark:bg-slate-900 p-3 shadow-sm ring-1 ring-slate-100 dark:ring-slate-800 active:cursor-grabbing"
     >
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
-          <p className="truncate text-sm font-semibold text-slate-900">{lead.name}</p>
+          <p className="truncate text-sm font-semibold text-slate-900 dark:text-white">{lead.name}</p>
           <p className="truncate text-xs text-slate-400">{lead.email}</p>
         </div>
         <button
@@ -119,15 +119,15 @@ function LeadCard({
 
       <div className="flex flex-wrap items-center gap-1.5">
         <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${priorityClass}`}>{lead.priority}</span>
-        {lead.source && <span className="rounded-full bg-slate-50 px-2 py-0.5 text-[10px] font-medium text-slate-500">{lead.source}</span>}
+        {lead.source && <span className="rounded-full bg-slate-50 dark:bg-slate-800 px-2 py-0.5 text-[10px] font-medium text-slate-500 dark:text-slate-400">{lead.source}</span>}
       </div>
 
-      {lead.notes && <p className="line-clamp-2 text-xs text-slate-500">{lead.notes}</p>}
+      {lead.notes && <p className="line-clamp-2 text-xs text-slate-500 dark:text-slate-400">{lead.notes}</p>}
 
       <select
         value={lead.status}
         onChange={(e) => onMove(lead.id, e.target.value as Lead['status'])}
-        className="h-8 w-full rounded-lg border border-slate-200 bg-white px-2 text-xs text-slate-700 outline-none focus:border-violet-500"
+        className="h-8 w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-2 text-xs text-slate-700 dark:text-slate-200 outline-none focus:border-violet-500"
       >
         {COLUMNS.map((column) => (
           <option key={column.status} value={column.status}>

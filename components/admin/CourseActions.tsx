@@ -51,7 +51,7 @@ export function DeleteCourseButton({ courseId }: { courseId: string }) {
       type="button"
       onClick={handleClick}
       disabled={isPending}
-      className="flex min-h-11 items-center rounded-xl border border-red-200 px-4 text-sm font-semibold text-red-600 transition hover:bg-red-50 disabled:opacity-60"
+      className="flex min-h-11 items-center rounded-xl border border-red-200 px-4 text-sm font-semibold text-red-600 dark:text-red-400 transition hover:bg-red-50 disabled:opacity-60"
     >
       {isPending ? '...' : 'Apagar curso'}
     </button>

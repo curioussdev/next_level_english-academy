@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation'
+import Link from 'next/link'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { BlockUserButton } from '@/components/admin/BlockUserButton'
@@ -25,6 +26,7 @@ export default async function AdminStudentDetailPage({ params }: { params: Promi
           blockedReason: true,
           createdAt: true,
           lastLoginAt: true,
+          nif: true,
           _count: { select: { enrollments: true } },
         },
       })
@@ -37,39 +39,51 @@ export default async function AdminStudentDetailPage({ params }: { params: Promi
   return (
     <div className="mx-auto max-w-2xl">
       <h1 className="text-3xl font-bold tracking-tight">{user.name ?? user.email}</h1>
-      <p className="mt-1 text-slate-500">{user.email}</p>
+      <p className="mt-1 text-slate-500 dark:text-slate-400">{user.email}</p>
 
-      <div className="mt-6 rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-100">
+      <div className="mt-6 rounded-3xl bg-white dark:bg-slate-900 p-6 shadow-sm ring-1 ring-slate-100 dark:ring-slate-800">
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
             <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">Role</p>
             {canManage ? (
               <RoleSelect userId={user.id} currentRole={user.role} />
             ) : (
-              <p className="mt-1 text-sm font-medium text-slate-700">{user.role}{isSelf && ' (você)'}</p>
+              <p className="mt-1 text-sm font-medium text-slate-700 dark:text-slate-200">{user.role}{isSelf && ' (você)'}</p>
             )}
           </div>
           <div>
             <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">Status</p>
-            <p className="mt-1 text-sm font-medium text-slate-700">{user.isBlocked ? 'Bloqueado' : 'Ativo'}</p>
+            <p className="mt-1 text-sm font-medium text-slate-700 dark:text-slate-200">{user.isBlocked ? 'Bloqueado' : 'Ativo'}</p>
             {user.isBlocked && 'blockedReason' in user && user.blockedReason && (
               <p className="mt-1 text-xs text-slate-400">Motivo: {user.blockedReason}</p>
             )}
           </div>
           <div>
             <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">Membro desde</p>
-            <p className="mt-1 text-sm font-medium text-slate-700">{formatDate(user.createdAt)}</p>
+            <p className="mt-1 text-sm font-medium text-slate-700 dark:text-slate-200">{formatDate(user.createdAt)}</p>
           </div>
           {'_count' in user && (
             <div>
               <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">Matrículas</p>
-              <p className="mt-1 text-sm font-medium text-slate-700">{user._count.enrollments}</p>
+              <p className="mt-1 text-sm font-medium text-slate-700 dark:text-slate-200">{user._count.enrollments}</p>
+            </div>
+          )}
+          {'nif' in user && (
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">NIF</p>
+              <p className="mt-1 text-sm font-medium text-slate-700 dark:text-slate-200">{user.nif ?? '—'}</p>
             </div>
           )}
         </div>
 
         {canManage && (
-          <div className="mt-6 border-t border-slate-100 pt-6">
+          <div className="mt-6 flex flex-wrap gap-3 border-t border-slate-100 dark:border-slate-800 pt-6">
+            <Link
+              href={`/admin/students/${user.id}/edit`}
+              className="rounded-lg bg-slate-100 px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 transition hover:bg-slate-200"
+            >
+              Editar perfil
+            </Link>
             <BlockUserButton userId={user.id} isBlocked={user.isBlocked} />
           </div>
         )}

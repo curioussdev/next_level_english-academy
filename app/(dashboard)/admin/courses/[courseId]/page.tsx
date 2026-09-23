@@ -18,7 +18,7 @@ export default async function AdminCourseDetailPage({ params }: { params: Promis
 
   return (
     <div className="mx-auto max-w-3xl">
-      <Link href="/admin/courses" className="inline-flex items-center gap-2 text-sm text-slate-500 hover:text-slate-900">
+      <Link href="/admin/courses" className="inline-flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400 hover:text-slate-900">
         <ArrowLeft size={16} /> Cursos
       </Link>
 

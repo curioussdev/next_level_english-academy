@@ -16,7 +16,7 @@ export default async function AdminCoursesPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Cursos</h1>
-          <p className="mt-2 text-slate-500">{courses.length} cursos cadastrados.</p>
+          <p className="mt-2 text-slate-500 dark:text-slate-400">{courses.length} cursos cadastrados.</p>
         </div>
         <Link
           href="/admin/courses/create"
@@ -31,20 +31,20 @@ export default async function AdminCoursesPage() {
           <Link
             key={course.id}
             href={`/admin/courses/${course.id}`}
-            className="rounded-3xl border border-slate-200 bg-white p-5 transition hover:border-violet-200 hover:shadow-sm"
+            className="rounded-3xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-5 transition hover:border-violet-200 hover:shadow-sm"
           >
             <div className="flex items-center justify-between">
-              <p className="text-xs font-semibold uppercase tracking-wider text-violet-600">{course.level ?? 'Curso'}</p>
+              <p className="text-xs font-semibold uppercase tracking-wider text-violet-600 dark:text-violet-400">{course.level ?? 'Curso'}</p>
               <span
                 className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${
-                  course.isPublished ? 'bg-teal-50 text-teal-700' : 'bg-slate-100 text-slate-500'
+                  course.isPublished ? 'bg-teal-50 dark:bg-teal-500/10 text-teal-700' : 'bg-slate-100 text-slate-500'
                 }`}
               >
                 {course.isPublished ? 'Publicado' : 'Rascunho'}
               </span>
             </div>
             <h3 className="mt-2 text-lg font-bold">{course.title}</h3>
-            <div className="mt-4 flex items-center justify-between text-sm text-slate-500">
+            <div className="mt-4 flex items-center justify-between text-sm text-slate-500 dark:text-slate-400">
               <span>{course.moduleCount} módulos</span>
               <span>{course.enrollmentCount} alunos</span>
             </div>

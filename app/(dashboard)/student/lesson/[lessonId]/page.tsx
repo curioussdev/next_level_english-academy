@@ -15,7 +15,7 @@ export default async function LessonPage({ params }: { params: Promise<{ lessonI
 
   return (
     <div className="mx-auto max-w-5xl">
-      <p className="text-xs font-bold uppercase tracking-wider text-violet-600">
+      <p className="text-xs font-bold uppercase tracking-wider text-violet-600 dark:text-violet-400">
         {lesson.courseTitle} · {lesson.moduleTitle}
       </p>
       <h1 className="mt-2 text-2xl font-bold tracking-tight">{lesson.title}</h1>
@@ -25,7 +25,7 @@ export default async function LessonPage({ params }: { params: Promise<{ lessonI
       </div>
 
       {lesson.content && (
-        <div className="mt-8 rounded-2xl bg-white p-6 ring-1 ring-slate-100">
+        <div className="mt-8 rounded-2xl bg-white dark:bg-slate-900 p-6 ring-1 ring-slate-100 dark:ring-slate-800">
           <p className="whitespace-pre-wrap text-sm leading-6 text-slate-600">{lesson.content}</p>
         </div>
       )}

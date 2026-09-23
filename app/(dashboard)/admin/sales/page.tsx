@@ -1,7 +1,7 @@
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { formatCurrency, formatDate } from '@/lib/format'
-import { buildMonthBuckets, monthKey, startOfMonthsAgo } from '@/lib/date-buckets'
+import { loadRevenueByMonth } from '@/lib/admin-stats'
 import { RevenueChart } from '@/components/admin/charts/RevenueChart'
 import { DEMO_SALES, isDemoUser } from '@/lib/demo'
 
@@ -14,10 +14,10 @@ export default async function AdminSalesPage() {
   return (
     <div className="mx-auto max-w-6xl">
       <h1 className="text-3xl font-bold tracking-tight">Vendas</h1>
-      <p className="mt-2 text-slate-500">Receita confirmada e transações recentes.</p>
+      <p className="mt-2 text-slate-500 dark:text-slate-400">Receita confirmada e transações recentes.</p>
 
       <div className="mt-6 grid gap-6 lg:grid-cols-[1.4fr_.8fr]">
-        <div className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-100">
+        <div className="rounded-3xl bg-white dark:bg-slate-900 p-6 shadow-sm ring-1 ring-slate-100 dark:ring-slate-800">
           <div className="flex items-baseline justify-between">
             <h2 className="font-bold">Receita mensal</h2>
             <p className="text-xl font-bold">{formatCurrency(totalRevenue)}</p>
@@ -28,7 +28,7 @@ export default async function AdminSalesPage() {
           </div>
         </div>
 
-        <div className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-100">
+        <div className="rounded-3xl bg-white dark:bg-slate-900 p-6 shadow-sm ring-1 ring-slate-100 dark:ring-slate-800">
           <h2 className="font-bold">Resumo</h2>
           <div className="mt-4 space-y-4">
             <div>
@@ -43,9 +43,9 @@ export default async function AdminSalesPage() {
         </div>
       </div>
 
-      <div className="mt-6 overflow-x-auto rounded-3xl bg-white shadow-sm ring-1 ring-slate-100">
+      <div className="mt-6 overflow-x-auto rounded-3xl bg-white dark:bg-slate-900 shadow-sm ring-1 ring-slate-100 dark:ring-slate-800">
         <table className="w-full min-w-[560px] text-left text-sm">
-          <thead className="border-b border-slate-100 text-xs uppercase tracking-wider text-slate-400">
+          <thead className="border-b border-slate-100 dark:border-slate-800 text-xs uppercase tracking-wider text-slate-400">
             <tr>
               <th className="px-5 py-3 font-semibold">Cliente</th>
               <th className="px-5 py-3 font-semibold">Tipo</th>
@@ -57,14 +57,14 @@ export default async function AdminSalesPage() {
           <tbody>
             {transactions.map((transaction) => (
               <tr key={transaction.id} className="border-b border-slate-50 last:border-0">
-                <td className="px-5 py-4 font-semibold text-slate-900">{transaction.customerLabel}</td>
-                <td className="px-5 py-4 text-slate-500">{transaction.type}</td>
-                <td className="px-5 py-4 text-slate-500">{formatDate(transaction.createdAt)}</td>
-                <td className="px-5 py-4 font-semibold text-slate-900">{formatCurrency(transaction.amount)}</td>
+                <td className="px-5 py-4 font-semibold text-slate-900 dark:text-white">{transaction.customerLabel}</td>
+                <td className="px-5 py-4 text-slate-500 dark:text-slate-400">{transaction.type}</td>
+                <td className="px-5 py-4 text-slate-500 dark:text-slate-400">{formatDate(transaction.createdAt)}</td>
+                <td className="px-5 py-4 font-semibold text-slate-900 dark:text-white">{formatCurrency(transaction.amount)}</td>
                 <td className="px-5 py-4">
                   <span
                     className={`rounded-full px-2.5 py-1 text-xs font-semibold ${
-                      transaction.status === 'PAID' ? 'bg-teal-50 text-teal-700' : 'bg-amber-50 text-amber-700'
+                      transaction.status === 'PAID' ? 'bg-teal-50 dark:bg-teal-500/10 text-teal-700' : 'bg-amber-50 dark:bg-amber-500/10 text-amber-700'
                     }`}
                   >
                     {transaction.status}
@@ -87,14 +87,8 @@ export default async function AdminSalesPage() {
 }
 
 async function loadSales() {
-  const buckets = buildMonthBuckets(6)
-  const since = startOfMonthsAgo(6)
-
-  const [paidInRange, recentTransactions] = await Promise.all([
-    prisma.transaction.findMany({
-      where: { status: 'PAID', createdAt: { gte: since } },
-      select: { amount: true, createdAt: true },
-    }),
+  const [{ revenueByMonth, totalRevenue, paidCount }, recentTransactions] = await Promise.all([
+    loadRevenueByMonth(),
     prisma.transaction.findMany({
       orderBy: { createdAt: 'desc' },
       take: 15,
@@ -102,19 +96,10 @@ async function loadSales() {
     }),
   ])
 
-  const revenueByMonth = buckets.map((bucket) => ({
-    month: bucket.label,
-    revenue: paidInRange
-      .filter((t) => monthKey(t.createdAt) === bucket.key)
-      .reduce((sum, t) => sum + Number(t.amount), 0),
-  }))
-
-  const totalRevenue = paidInRange.reduce((sum, t) => sum + Number(t.amount), 0)
-
   return {
     revenueByMonth,
     totalRevenue,
-    paidCount: paidInRange.length,
+    paidCount,
     transactions: recentTransactions.map((t) => ({
       id: t.id,
       customerLabel: t.user.name ?? t.user.email,

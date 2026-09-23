@@ -36,7 +36,7 @@ export function TestimonialActions({ id, isActive }: { id: string; isActive: boo
         onClick={handleToggle}
         disabled={isPending}
         className={`min-h-9 rounded-lg px-3 text-xs font-semibold transition disabled:opacity-60 ${
-          isActive ? 'bg-slate-100 text-slate-600 hover:bg-slate-200' : 'bg-teal-50 text-teal-700 hover:bg-teal-100'
+          isActive ? 'bg-slate-100 text-slate-600 hover:bg-slate-200' : 'bg-teal-50 dark:bg-teal-500/10 text-teal-700 dark:text-teal-300 hover:bg-teal-100'
         }`}
       >
         {isPending ? '...' : isActive ? 'Ocultar' : 'Publicar'}

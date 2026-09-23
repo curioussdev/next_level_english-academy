@@ -22,7 +22,7 @@ export function PricingCard({ plan }: { plan: Plan }) {
 
   return (
     <div
-      className={`relative rounded-3xl p-7 ${featured ? 'bg-gradient-to-br from-violet-600 to-blue-600 text-white shadow-2xl shadow-violet-500/20' : 'border border-slate-200 bg-white'}`}
+      className={`relative rounded-3xl p-7 ${featured ? 'bg-gradient-to-br from-violet-600 to-blue-600 text-white shadow-2xl shadow-violet-500/20' : 'border border-slate-200 dark:border-slate-700 bg-white'}`}
     >
       {featured && <span className="absolute right-6 top-6 rounded-full bg-white/15 px-3 py-1 text-xs font-bold">Mais escolhido</span>}
       <p className={`font-bold ${featured ? 'text-violet-100' : 'text-violet-600'}`}>{title}</p>
@@ -44,7 +44,7 @@ export function PricingCard({ plan }: { plan: Plan }) {
         onClick={() => handleClick(plan.id)}
         disabled={isPending}
         className={`mt-8 min-h-11 w-full rounded-full py-3 text-sm font-bold transition disabled:opacity-60 ${
-          featured ? 'bg-white text-violet-700 hover:bg-violet-50' : 'bg-slate-950 text-white hover:bg-violet-600'
+          featured ? 'bg-white dark:bg-slate-900 text-violet-700 dark:text-violet-300 hover:bg-violet-50' : 'bg-slate-950 text-white hover:bg-violet-600'
         }`}
       >
         {isPending ? 'A abrir checkout...' : 'Começar agora'}

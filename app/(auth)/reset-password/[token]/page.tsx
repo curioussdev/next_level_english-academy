@@ -7,6 +7,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { toast } from 'sonner'
 import { BackToHome } from '@/components/layout/BackToHome'
+import { ThemeToggle } from '@/components/layout/ThemeToggle'
 import { resetPassword } from '@/lib/actions/password-reset'
 import { resetPasswordSchema, type ResetPasswordInput } from '@/lib/validators/auth'
 
@@ -38,24 +39,24 @@ function ResetPasswordForm({ token }: { token: string }) {
   }
 
   if (done) {
-    return <p className="mt-3 text-sm text-slate-500">Palavra-passe atualizada. A redirecionar para o login...</p>
+    return <p className="mt-3 text-sm text-slate-500 dark:text-slate-400">Palavra-passe atualizada. A redirecionar para o login...</p>
   }
 
   return (
     <>
-      <p className="mt-1 text-sm text-slate-500">Escolha uma nova palavra-passe para {email || 'a sua conta'}.</p>
+      <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">Escolha uma nova palavra-passe para {email || 'a sua conta'}.</p>
       <form onSubmit={handleSubmit(onSubmit)} className="mt-6 space-y-4">
         <div>
-          <label htmlFor="password" className="text-sm font-medium text-slate-700">
+          <label htmlFor="password" className="text-sm font-medium text-slate-700 dark:text-slate-200">
             Nova palavra-passe
           </label>
           <input
             id="password"
             type="password"
             {...register('password')}
-            className="mt-1 h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none placeholder:text-slate-400 focus:border-violet-500 focus:ring-2 focus:ring-violet-100"
+            className="mt-1 h-11 w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 text-sm text-slate-900 dark:text-white outline-none placeholder:text-slate-400 focus:border-violet-500 focus:ring-2 focus:ring-violet-100"
           />
-          {errors.password && <p className="mt-1 text-xs text-red-600">{errors.password.message}</p>}
+          {errors.password && <p className="mt-1 text-xs text-red-600 dark:text-red-400">{errors.password.message}</p>}
         </div>
         <button
           type="submit"
@@ -73,17 +74,18 @@ export default function ResetPasswordPage({ params }: { params: Promise<{ token:
   const { token } = use(params)
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-slate-50 px-5 py-10">
-      <div className="w-full max-w-sm">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-slate-50 dark:bg-slate-950 px-5 py-10">
+      <div className="flex w-full max-w-sm items-center justify-between">
         <BackToHome />
+        <ThemeToggle />
       </div>
-      <div className="w-full max-w-sm rounded-3xl bg-white p-8 shadow-sm ring-1 ring-slate-100">
-        <h1 className="text-2xl font-bold text-slate-900">Nova palavra-passe</h1>
+      <div className="w-full max-w-sm rounded-3xl bg-white dark:bg-slate-900 p-8 shadow-sm ring-1 ring-slate-100 dark:ring-slate-800">
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Nova palavra-passe</h1>
         <Suspense>
           <ResetPasswordForm token={token} />
         </Suspense>
-        <p className="mt-6 text-center text-sm text-slate-500">
-          <Link href="/login" className="font-semibold text-violet-600">
+        <p className="mt-6 text-center text-sm text-slate-500 dark:text-slate-400">
+          <Link href="/login" className="font-semibold text-violet-600 dark:text-violet-400">
             Voltar ao login
           </Link>
         </p>

@@ -19,7 +19,7 @@ export default async function StudentPage() {
         <div>
           <p className="text-sm font-medium text-slate-400">Bem-vindo de volta</p>
           <h1 className="mt-1 text-3xl font-bold tracking-tight">Olá, {firstName}!</h1>
-          <p className="mt-2 text-slate-500">Pronto para dar mais um passo hoje?</p>
+          <p className="mt-2 text-slate-500 dark:text-slate-400">Pronto para dar mais um passo hoje?</p>
         </div>
         {continueLesson ? (
           <Link
@@ -63,10 +63,10 @@ export default async function StudentPage() {
       </div>
 
       {enrolledCount === 0 && (
-        <div className="mt-10 rounded-3xl bg-white p-8 text-center shadow-sm ring-1 ring-slate-100">
+        <div className="mt-10 rounded-3xl bg-white dark:bg-slate-900 p-8 text-center shadow-sm ring-1 ring-slate-100 dark:ring-slate-800">
           <Sparkles className="mx-auto text-violet-400" size={28} />
           <h2 className="mt-4 text-lg font-bold">Ainda sem cursos matriculados</h2>
-          <p className="mt-2 text-sm text-slate-500">Assim que se inscrever num curso, o seu progresso aparece aqui.</p>
+          <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">Assim que se inscrever num curso, o seu progresso aparece aqui.</p>
         </div>
       )}
     </div>
@@ -110,9 +110,9 @@ function Stat({
     color === 'orange' ? 'bg-orange-100 text-orange-600' : color === 'teal' ? 'bg-teal-100 text-teal-600' : 'bg-violet-100 text-violet-600'
 
   return (
-    <div className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-100">
+    <div className="rounded-2xl bg-white dark:bg-slate-900 p-5 shadow-sm ring-1 ring-slate-100 dark:ring-slate-800">
       <span className={`grid h-9 w-9 place-items-center rounded-xl ${toneClass}`}>{icon}</span>
-      <p className="mt-5 text-sm text-slate-500">{label}</p>
+      <p className="mt-5 text-sm text-slate-500 dark:text-slate-400">{label}</p>
       <p className="mt-1 text-2xl font-bold">{value}</p>
       <p className="mt-1 text-xs text-slate-400">{detail}</p>
     </div>
