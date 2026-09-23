@@ -5,6 +5,8 @@ import { Prisma } from '@prisma/client'
 import { redirect } from 'next/navigation'
 import { prisma } from '@/lib/prisma'
 import { registerSchema, type RegisterInput } from '@/lib/validators/auth'
+import { sendEmail, CONTACT_EMAIL } from '@/lib/resend'
+import { welcomeEmail, newRegistrationNotificationEmail } from '@/lib/email-templates'
 
 export type RegisterState = { error: string } | undefined
 
@@ -39,6 +41,15 @@ export async function registerUser(input: RegisterInput): Promise<RegisterState>
         },
       })
       .catch(() => {})
+
+    await sendEmail({ to: email, subject: 'Bem-vindo à Next Level!', html: welcomeEmail(name) })
+    if (CONTACT_EMAIL) {
+      await sendEmail({
+        to: CONTACT_EMAIL,
+        subject: 'Novo aluno registado — Next Level',
+        html: newRegistrationNotificationEmail(name, email),
+      })
+    }
   } catch (err) {
     if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002') {
       return { error: 'Já existe uma conta com este email.' }

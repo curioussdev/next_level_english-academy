@@ -3,25 +3,40 @@ import bcrypt from 'bcryptjs'
 
 const prisma = new PrismaClient()
 
+// Conta real do Director (Ralde Sicato / tenant superior). Senha gerada
+// aleatoriamente — troque assim que entrar, pelo fluxo "Esqueci a senha".
+const DIRECTOR_EMAIL = process.env.CONTACT_EMAIL ?? 'englishcommunitynextlevel@gmail.com'
+const DIRECTOR_PASSWORD = 'Ucnw8HTMZVWROk44'
+
+// Contas de teste (não são reais — usar só para validar RBAC/roles em dev).
+const TEST_PASSWORD = 'Teste@123'
+
 async function main() {
-  const password = await bcrypt.hash('password123', 10)
+  const directorPassword = await bcrypt.hash(DIRECTOR_PASSWORD, 10)
+  const testPassword = await bcrypt.hash(TEST_PASSWORD, 10)
+
+  await prisma.user.upsert({
+    where: { email: DIRECTOR_EMAIL },
+    update: { role: 'DIRECTOR' },
+    create: { name: 'Ralde Sicato', email: DIRECTOR_EMAIL, password: directorPassword, role: 'DIRECTOR' },
+  })
 
   const student = await prisma.user.upsert({
-    where: { email: 'aluno@nextlevel.pt' },
+    where: { email: 'aluno.teste@nextlevel.pt' },
     update: {},
-    create: { name: 'Aluno Demo', email: 'aluno@nextlevel.pt', password, role: 'STUDENT' },
+    create: { name: 'Aluno Teste', email: 'aluno.teste@nextlevel.pt', password: testPassword, role: 'STUDENT' },
   })
 
   await prisma.user.upsert({
-    where: { email: 'admin@nextlevel.pt' },
+    where: { email: 'instrutor.teste@nextlevel.pt' },
     update: {},
-    create: { name: 'Admin Demo', email: 'admin@nextlevel.pt', password, role: 'ADMIN' },
+    create: { name: 'Instrutor Teste', email: 'instrutor.teste@nextlevel.pt', password: testPassword, role: 'INSTRUCTOR' },
   })
 
   await prisma.user.upsert({
-    where: { email: 'ralde@nextlevel.pt' },
+    where: { email: 'admin.teste@nextlevel.pt' },
     update: {},
-    create: { name: 'Ralde Sicato', email: 'ralde@nextlevel.pt', password, role: 'DIRECTOR' },
+    create: { name: 'Admin Teste', email: 'admin.teste@nextlevel.pt', password: testPassword, role: 'ADMIN' },
   })
 
   const course = await prisma.course.upsert({
@@ -63,10 +78,14 @@ async function main() {
     create: { userId: student.id, courseId: course.id },
   })
 
-  console.log('Seed concluído. Contas de teste (senha: password123):')
-  console.log('  Aluno:    aluno@nextlevel.pt')
-  console.log('  Admin:    admin@nextlevel.pt')
-  console.log('  Director: ralde@nextlevel.pt')
+  console.log('Seed concluído.')
+  console.log('')
+  console.log(`  Director (real):  ${DIRECTOR_EMAIL} / ${DIRECTOR_PASSWORD}`)
+  console.log('  Aluno (teste):     aluno.teste@nextlevel.pt / Teste@123')
+  console.log('  Instrutor (teste): instrutor.teste@nextlevel.pt / Teste@123')
+  console.log('  Admin (teste):     admin.teste@nextlevel.pt / Teste@123')
+  console.log('')
+  console.log('  Troque a senha do Director assim que entrar (fluxo "Esqueci a senha").')
 }
 
 main()

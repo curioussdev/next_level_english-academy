@@ -4,6 +4,9 @@ import Stripe from 'stripe'
 import { getStripe } from '@/lib/stripe'
 import { prisma } from '@/lib/prisma'
 import { logActivity } from '@/lib/activity'
+import { sendEmail, CONTACT_EMAIL } from '@/lib/resend'
+import { newPurchaseNotificationEmail } from '@/lib/email-templates'
+import { formatCurrency } from '@/lib/format'
 
 export async function POST(req: Request) {
   const body = await req.text()
@@ -77,6 +80,23 @@ export async function POST(req: Request) {
         entityId: session.metadata?.courseId ?? session.metadata?.planId,
         metadata: { amount: (session.amount_total ?? 0) / 100, mode: session.mode },
       })
+
+      if (CONTACT_EMAIL) {
+        const buyer = await prisma.user.findUnique({ where: { id: userId }, select: { name: true, email: true } })
+        const description =
+          session.mode === 'subscription'
+            ? `plano ${session.metadata?.planId ?? 'desconhecido'}`
+            : `o curso "${session.metadata?.courseId ?? 'desconhecido'}"`
+        await sendEmail({
+          to: CONTACT_EMAIL,
+          subject: 'Nova compra confirmada — Next Level',
+          html: newPurchaseNotificationEmail(
+            buyer ? (buyer.name ?? buyer.email) : userId,
+            description,
+            formatCurrency((session.amount_total ?? 0) / 100, (session.currency ?? 'eur').toUpperCase()),
+          ),
+        })
+      }
       break
     }
 

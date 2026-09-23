@@ -95,16 +95,7 @@ function LoginForm() {
           </button>
         </form>
 
-        <div className="mt-4 flex items-center gap-3 text-xs text-slate-400">
-          <div className="h-px flex-1 bg-slate-100" /> ou <div className="h-px flex-1 bg-slate-100" />
-        </div>
-
-        <button
-          onClick={() => signIn('google', { callbackUrl })}
-          className="mt-4 h-11 w-full rounded-xl border border-slate-200 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
-        >
-          Entrar com Google
-        </button>
+        {/* Login com Google fica desativado até GOOGLE_CLIENT_ID/SECRET estarem configurados — ver lib/auth.ts */}
 
         <p className="mt-6 text-center text-sm text-slate-500">
           Não tem conta?{' '}
