@@ -1,6 +1,8 @@
 import { redirect } from 'next/navigation'
 import { auth } from '@/lib/auth'
 import { DashboardShell } from '@/components/layout/DashboardShell'
+import { isDemoUser } from '@/lib/demo'
+import { loadNotificationsForUser } from '@/lib/notifications'
 
 export default async function StudentLayout({ children }: { children: React.ReactNode }) {
   const session = await auth()
@@ -8,8 +10,10 @@ export default async function StudentLayout({ children }: { children: React.Reac
     redirect('/login?callbackUrl=/student')
   }
 
+  const notifications = await loadNotificationsForUser(session.user.id)
+
   return (
-    <DashboardShell role="student" userName={session.user.name ?? 'Aluno'}>
+    <DashboardShell role="student" userName={session.user.name ?? 'Aluno'} isDemo={isDemoUser(session.user.id)} notifications={notifications}>
       {children}
     </DashboardShell>
   )

@@ -3,24 +3,15 @@ import { BookOpen, Clock3, Play, Sparkles, Trophy } from 'lucide-react'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { formatDuration } from '@/lib/format'
+import { DEMO_DASHBOARD_STATS, isDemoUser } from '@/lib/demo'
 
 export default async function StudentPage() {
   const session = await auth()
   const userId = session!.user.id
   const firstName = session?.user?.name?.split(' ')[0] ?? 'aluno'
 
-  const [enrolledCount, completedCount, timeWatchedAgg, lastProgress] = await Promise.all([
-    prisma.enrollment.count({ where: { userId, status: 'ACTIVE' } }),
-    prisma.lessonProgress.count({ where: { userId, isCompleted: true } }),
-    prisma.lessonProgress.aggregate({ where: { userId }, _sum: { totalTimeWatched: true } }),
-    prisma.lessonProgress.findFirst({
-      where: { userId, isCompleted: false },
-      orderBy: { updatedAt: 'desc' },
-      include: { lesson: { include: { module: { include: { course: true } } } } },
-    }),
-  ])
-
-  const totalTimeWatched = timeWatchedAgg._sum.totalTimeWatched ?? 0
+  const stats = isDemoUser(userId) ? DEMO_DASHBOARD_STATS : await loadDashboardStats(userId)
+  const { enrolledCount, completedCount, totalTimeWatched, continueLesson } = stats
 
   return (
     <div className="mx-auto max-w-6xl">
@@ -30,12 +21,12 @@ export default async function StudentPage() {
           <h1 className="mt-1 text-3xl font-bold tracking-tight">Olá, {firstName}!</h1>
           <p className="mt-2 text-slate-500">Pronto para dar mais um passo hoje?</p>
         </div>
-        {lastProgress ? (
+        {continueLesson ? (
           <Link
-            href={`/student/lesson/${lastProgress.lessonId}`}
+            href={`/student/lesson/${continueLesson.lessonId}`}
             className="flex min-h-11 items-center justify-center gap-2 rounded-xl bg-violet-600 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-violet-600/20 hover:bg-violet-700"
           >
-            <Play size={16} fill="currentColor" /> Continuar: {lastProgress.lesson.title}
+            <Play size={16} fill="currentColor" /> Continuar: {continueLesson.title}
           </Link>
         ) : (
           <Link
@@ -80,6 +71,26 @@ export default async function StudentPage() {
       )}
     </div>
   )
+}
+
+async function loadDashboardStats(userId: string) {
+  const [enrolledCount, completedCount, timeWatchedAgg, lastProgress] = await Promise.all([
+    prisma.enrollment.count({ where: { userId, status: 'ACTIVE' } }),
+    prisma.lessonProgress.count({ where: { userId, isCompleted: true } }),
+    prisma.lessonProgress.aggregate({ where: { userId }, _sum: { totalTimeWatched: true } }),
+    prisma.lessonProgress.findFirst({
+      where: { userId, isCompleted: false },
+      orderBy: { updatedAt: 'desc' },
+      include: { lesson: { include: { module: { include: { course: true } } } } },
+    }),
+  ])
+
+  return {
+    enrolledCount,
+    completedCount,
+    totalTimeWatched: timeWatchedAgg._sum.totalTimeWatched ?? 0,
+    continueLesson: lastProgress ? { lessonId: lastProgress.lessonId, title: lastProgress.lesson.title } : null,
+  }
 }
 
 function Stat({

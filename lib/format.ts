@@ -8,3 +8,11 @@ export function formatDuration(totalSeconds: number) {
   if (hours > 0) return `${hours}h ${minutes}min`
   return `${minutes}min`
 }
+
+export function formatDate(date: Date) {
+  return date.toLocaleDateString('pt-PT')
+}
+
+export function formatDateTime(date: Date) {
+  return date.toLocaleString('pt-PT')
+}

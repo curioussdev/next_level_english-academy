@@ -77,17 +77,18 @@ model User {
   updatedAt   DateTime  @updatedAt
   lastLoginAt DateTime?
 
-  accounts      Account[]
-  sessions      Session[]
-  enrollments   Enrollment[]
-  progress      LessonProgress[]
-  subscriptions Subscription[]
-  certificates  Certificate[]
-  crmLeads      CRMLead[]
-  activities    ActivityLog[]
-  notifications Notification[]
-  transactions  Transaction[]
-  courseReviews CourseReview[]
+  accounts          Account[]
+  sessions          Session[]
+  enrollments       Enrollment[]
+  progress          LessonProgress[]
+  subscriptions     Subscription[]
+  certificates      Certificate[]
+  crmLeads          CRMLead[]
+  activities        ActivityLog[]
+  notifications     Notification[]
+  transactions      Transaction[]
+  courseReviews     CourseReview[]
+  pushSubscriptions PushSubscription[]
 
   @@index([email])
   @@index([role])
@@ -315,7 +316,7 @@ model Transaction {
   currency String  @default("EUR")
 
   stripePaymentIntentId   String?
-  stripeCheckoutSessionId String?
+  stripeCheckoutSessionId String? @unique
 
   status      PaymentStatus @default(PENDING)
   type        String // SUBSCRIPTION, ONE_TIME, REFUND
@@ -388,6 +389,19 @@ model Notification {
   @@index([userId])
   @@index([isRead])
   @@index([createdAt])
+}
+
+model PushSubscription {
+  id        String   @id @default(cuid())
+  userId    String
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }
 
 model SystemConfig {

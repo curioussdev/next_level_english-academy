@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { getStripe } from '@/lib/stripe'
+import { isDemoUser } from '@/lib/demo'
 import type { PlanId } from '@/lib/plans'
 
 // Os Price IDs ficam só no servidor — nunca expostos ao cliente.
@@ -24,6 +25,10 @@ export async function createPlanCheckoutSession(planId: PlanId) {
     throw new Error(
       `Price do Stripe não configurado para o plano "${planId}". Defina STRIPE_PRICE_${planId.toUpperCase()} no .env.`,
     )
+  }
+
+  if (isDemoUser(session.user.id)) {
+    throw new Error('Modo demo: ligue um banco de dados real para testar o checkout.')
   }
 
   const user = await prisma.user.findUniqueOrThrow({ where: { id: session.user.id } })
@@ -54,6 +59,10 @@ export async function createCourseCheckoutSession(courseId: string) {
   const session = await auth()
   if (!session?.user?.id) {
     redirect(`/login?callbackUrl=/student/courses`)
+  }
+
+  if (isDemoUser(session.user.id)) {
+    throw new Error('Modo demo: ligue um banco de dados real para testar a compra de cursos.')
   }
 
   const course = await prisma.course.findUniqueOrThrow({ where: { id: courseId } })

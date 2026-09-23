@@ -7,8 +7,8 @@ import { signOut } from 'next-auth/react'
 import {
   Award,
   BarChart3,
-  Bell,
   BookOpen,
+  Contact,
   LayoutDashboard,
   LogOut,
   Menu,
@@ -19,6 +19,7 @@ import {
   X,
 } from 'lucide-react'
 import { Logo } from '@/components/layout/Logo'
+import { NotificationBell, type NotificationItem } from '@/components/layout/NotificationBell'
 
 type NavItem = {
   label: string
@@ -37,6 +38,7 @@ const STUDENT_NAV: NavItem[] = [
 const ADMIN_NAV: NavItem[] = [
   { label: 'Visão geral', href: '/admin', icon: <LayoutDashboard size={20} /> },
   { label: 'Alunos', href: '/admin/students', icon: <Users size={20} /> },
+  { label: 'CRM', href: '/admin/crm', icon: <Contact size={20} /> },
   { label: 'Cursos', href: '/admin/courses', icon: <BookOpen size={20} /> },
   { label: 'Vendas', href: '/admin/sales', icon: <ShoppingBag size={20} /> },
 ]
@@ -45,10 +47,13 @@ interface DashboardShellProps {
   role: 'student' | 'admin'
   userName: string
   userPlan?: string
+  /** Sessão demo (sem banco conectado) — mostra aviso para não confundir com dados reais. */
+  isDemo?: boolean
+  notifications?: NotificationItem[]
   children: React.ReactNode
 }
 
-export function DashboardShell({ role, userName, userPlan, children }: DashboardShellProps) {
+export function DashboardShell({ role, userName, userPlan, isDemo, notifications = [], children }: DashboardShellProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const pathname = usePathname()
 
@@ -178,14 +183,7 @@ export function DashboardShell({ role, userName, userPlan, children }: Dashboard
             <span className="text-slate-900">{role === 'admin' ? 'Admin' : 'Dashboard'}</span>
           </div>
           <div className="flex items-center gap-2">
-            <button
-              type="button"
-              aria-label="Notificações"
-              className="relative grid h-11 w-11 place-items-center text-slate-400"
-            >
-              <Bell size={19} />
-              <span className="absolute right-2.5 top-2.5 h-2 w-2 rounded-full bg-violet-500" />
-            </button>
+            <NotificationBell notifications={notifications} />
             <button
               type="button"
               aria-label="Mais opções"
@@ -196,6 +194,12 @@ export function DashboardShell({ role, userName, userPlan, children }: Dashboard
             </button>
           </div>
         </header>
+
+        {isDemo && (
+          <div className="bg-amber-50 px-5 py-2 text-center text-xs font-medium text-amber-800 lg:px-8">
+            Modo demo — sem conexão com o banco de dados. Os dados mostrados aqui são fictícios.
+          </div>
+        )}
 
         <main className="p-5 pb-24 lg:p-8 lg:pb-8">{children}</main>
       </div>

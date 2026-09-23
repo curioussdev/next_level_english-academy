@@ -2,6 +2,7 @@
 
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
+import { isDemoUser } from '@/lib/demo'
 
 const HEARTBEAT_SECONDS = 10
 
@@ -16,6 +17,9 @@ export async function updateProgress(
   if (!userId) {
     throw new Error('Não autenticado.')
   }
+
+  // Sessão demo (sem banco conectado) — nada a persistir.
+  if (isDemoUser(userId)) return
 
   const completionPercentage =
     durationSeconds > 0 ? Math.min(100, Math.round((currentTime / durationSeconds) * 100)) : 0

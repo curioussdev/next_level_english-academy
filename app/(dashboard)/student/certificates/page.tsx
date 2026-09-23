@@ -1,16 +1,22 @@
 import { Award } from 'lucide-react'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
+import { isDemoUser } from '@/lib/demo'
+import { formatDate } from '@/lib/format'
 
 export default async function StudentCertificatesPage() {
   const session = await auth()
   const userId = session!.user.id
 
-  const certificates = await prisma.certificate.findMany({
-    where: { userId },
-    orderBy: { issuedAt: 'desc' },
-    include: { course: { select: { title: true } } },
-  })
+  // Emissão de certificados ainda não está automatizada — mesmo em modo
+  // demo, o estado "sem certificados" é o real e honesto de mostrar.
+  const certificates = isDemoUser(userId)
+    ? []
+    : await prisma.certificate.findMany({
+        where: { userId },
+        orderBy: { issuedAt: 'desc' },
+        include: { course: { select: { title: true } } },
+      })
 
   return (
     <div className="mx-auto max-w-4xl">
@@ -31,9 +37,7 @@ export default async function StudentCertificatesPage() {
               </div>
               <h3 className="mt-3 font-bold">{certificate.course.title}</h3>
               <p className="mt-1 font-mono text-xs text-slate-400">{certificate.certificateNumber}</p>
-              <p className="mt-2 text-sm text-slate-500">
-                Emitido em {certificate.issuedAt.toLocaleDateString('pt-PT')}
-              </p>
+              <p className="mt-2 text-sm text-slate-500">Emitido em {formatDate(certificate.issuedAt)}</p>
             </div>
           ))}
         </div>

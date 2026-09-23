@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { getStripe } from '@/lib/stripe'
 import { prisma } from '@/lib/prisma'
+import { logActivity } from '@/lib/activity'
 
 export async function POST(req: Request) {
   const body = await req.text()
@@ -26,6 +27,15 @@ export async function POST(req: Request) {
       const userId = session.metadata?.userId ?? session.client_reference_id
       if (!userId) break
 
+      // Stripe reenvia o mesmo evento em retries (timeout, 5xx) — sem isto,
+      // cada reentrega duplicava a Transaction, o log de auditoria e contava
+      // a receita duas vezes no dashboard.
+      const alreadyProcessed = await prisma.transaction.findUnique({
+        where: { stripeCheckoutSessionId: session.id },
+        select: { id: true },
+      })
+      if (alreadyProcessed) break
+
       if (typeof session.customer === 'string') {
         await prisma.user.update({
           where: { id: userId },
@@ -47,6 +57,26 @@ export async function POST(req: Request) {
           })
         }
       }
+
+      await prisma.transaction.upsert({
+        where: { stripeCheckoutSessionId: session.id },
+        update: {},
+        create: {
+          userId,
+          amount: (session.amount_total ?? 0) / 100,
+          currency: (session.currency ?? 'eur').toUpperCase(),
+          stripeCheckoutSessionId: session.id,
+          stripePaymentIntentId: typeof session.payment_intent === 'string' ? session.payment_intent : undefined,
+          status: 'PAID',
+          type: session.mode === 'subscription' ? 'SUBSCRIPTION' : 'ONE_TIME',
+        },
+      })
+
+      await logActivity(userId, 'PURCHASE', {
+        entityType: session.mode === 'subscription' ? 'Subscription' : 'Course',
+        entityId: session.metadata?.courseId ?? session.metadata?.planId,
+        metadata: { amount: (session.amount_total ?? 0) / 100, mode: session.mode },
+      })
       break
     }
 

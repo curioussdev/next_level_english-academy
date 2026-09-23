@@ -26,9 +26,19 @@ export async function registerUser(input: RegisterInput): Promise<RegisterState>
   const hashedPassword = await bcrypt.hash(password, 10)
 
   try {
-    await prisma.user.create({
+    const user = await prisma.user.create({
       data: { name, email, password: hashedPassword, role: 'STUDENT' },
     })
+    await prisma.notification
+      .create({
+        data: {
+          userId: user.id,
+          title: 'Bem-vindo à Next Level!',
+          message: 'A sua conta foi criada com sucesso. Explore o catálogo e comece a aprender hoje.',
+          type: 'SYSTEM',
+        },
+      })
+      .catch(() => {})
   } catch (err) {
     if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002') {
       return { error: 'Já existe uma conta com este email.' }
