@@ -2,9 +2,11 @@
 
 import crypto from 'node:crypto'
 import bcrypt from 'bcryptjs'
+import { after } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { sendEmail } from '@/lib/resend'
 import { passwordResetEmail } from '@/lib/email-templates'
+import { getAppUrl } from '@/lib/env'
 import {
   forgotPasswordSchema,
   resetPasswordSchema,
@@ -43,9 +45,8 @@ export async function requestPasswordReset(input: ForgotPasswordInput): Promise<
       await prisma.verificationToken.deleteMany({ where: { identifier: email } })
       await prisma.verificationToken.create({ data: { identifier: email, token: tokenHash, expires } })
 
-      const appUrl = process.env.NEXTAUTH_URL ?? 'http://localhost:3000'
-      const resetUrl = `${appUrl}/reset-password/${rawToken}?email=${encodeURIComponent(email)}`
-      await sendEmail({ to: email, subject: 'Repor a sua palavra-passe — Next Level', html: passwordResetEmail(resetUrl) })
+      const resetUrl = `${getAppUrl()}/reset-password/${rawToken}?email=${encodeURIComponent(email)}`
+      after(() => sendEmail({ to: email, subject: 'Repor a sua palavra-passe — Next Level', html: passwordResetEmail(resetUrl) }))
     }
   } catch (err) {
     console.warn('[password-reset] falha ao processar pedido:', err)

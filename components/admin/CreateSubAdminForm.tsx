@@ -15,7 +15,7 @@ const MODULE_LABELS: Record<TenantModule, string> = {
 }
 
 const inputClass =
-  'mt-1 h-11 w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 text-sm text-slate-900 dark:text-white outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-100'
+  'mt-1 h-11 w-full rounded-xl border border-border bg-card px-3 text-sm text-foreground outline-none focus:border-primary focus:ring-2 focus:ring-violet-100'
 
 export function CreateSubAdminForm() {
   const [isPending, startTransition] = useTransition()
@@ -45,9 +45,9 @@ export function CreateSubAdminForm() {
 
   if (result) {
     return (
-      <div className="mt-3 space-y-4 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-100 dark:bg-slate-900 dark:ring-slate-800">
-        <p className="text-sm text-slate-700 dark:text-slate-300">
-          Sub-admin <span className="font-semibold text-slate-900 dark:text-white">{name}</span> criado com acesso a: {permissions.map((m) => MODULE_LABELS[m]).join(', ') || 'nenhum módulo'}.
+      <div className="mt-3 space-y-4 rounded-2xl bg-card p-5 shadow-sm ring-1 ring-border">
+        <p className="text-sm text-foreground">
+          Sub-admin <span className="font-semibold text-foreground">{name}</span> criado com acesso a: {permissions.map((m) => MODULE_LABELS[m]).join(', ') || 'nenhum módulo'}.
         </p>
         <CopyableSecret label="Senha temporária" value={result.tempPassword} />
         <button
@@ -58,7 +58,7 @@ export function CreateSubAdminForm() {
             setEmail('')
             setPermissions([])
           }}
-          className="rounded-xl bg-slate-100 px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+          className="rounded-xl bg-muted px-4 py-2.5 text-sm font-semibold text-foreground transition hover:opacity-80"
         >
           Criar outro sub-admin
         </button>
@@ -67,16 +67,16 @@ export function CreateSubAdminForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="mt-3 space-y-4 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-100 dark:bg-slate-900 dark:ring-slate-800">
+    <form onSubmit={handleSubmit} className="mt-3 space-y-4 rounded-2xl bg-card p-5 shadow-sm ring-1 ring-border">
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
-          <label htmlFor="sa-name" className="text-sm font-medium text-slate-700 dark:text-slate-200">
+          <label htmlFor="sa-name" className="text-sm font-medium text-foreground">
             Nome
           </label>
           <input id="sa-name" required value={name} onChange={(e) => setName(e.target.value)} className={inputClass} />
         </div>
         <div>
-          <label htmlFor="sa-email" className="text-sm font-medium text-slate-700 dark:text-slate-200">
+          <label htmlFor="sa-email" className="text-sm font-medium text-foreground">
             Email
           </label>
           <input
@@ -91,15 +91,15 @@ export function CreateSubAdminForm() {
       </div>
 
       <div>
-        <p className="text-sm font-medium text-slate-700 dark:text-slate-200">Módulos permitidos</p>
+        <p className="text-sm font-medium text-foreground">Módulos permitidos</p>
         <div className="mt-2 flex flex-wrap gap-2">
           {TENANT_MODULES.map((module) => (
             <label
               key={module}
               className={`flex cursor-pointer items-center gap-2 rounded-lg border px-3 py-2 text-sm transition ${
                 permissions.includes(module)
-                  ? 'border-violet-300 bg-violet-50 text-violet-700 dark:border-violet-800 dark:bg-violet-500/10 dark:text-violet-300'
-                  : 'border-slate-200 text-slate-600 dark:border-slate-700 dark:text-slate-400'
+                  ? 'border-violet-300 bg-primary/10 text-primary dark:border-violet-800'
+                  : 'border-border text-muted-foreground'
               }`}
             >
               <input
@@ -114,12 +114,12 @@ export function CreateSubAdminForm() {
         </div>
       </div>
 
-      {error && <p className="text-sm text-red-600 dark:text-red-400">{error}</p>}
+      {error && <p className="text-sm text-destructive">{error}</p>}
 
       <button
         type="submit"
         disabled={isPending}
-        className="h-11 rounded-xl bg-violet-600 px-6 text-sm font-semibold text-white transition hover:bg-violet-700 disabled:opacity-60"
+        className="h-11 rounded-xl bg-primary px-6 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-60"
       >
         {isPending ? 'A criar...' : 'Criar sub-admin'}
       </button>

@@ -1,10 +1,31 @@
 import 'server-only'
+import type { Session } from 'next-auth'
+import { prisma } from '@/lib/prisma'
 import { auth } from '@/lib/auth'
 import { ADMIN_ROLES, STAFF_ROLES, hasModuleAccess, type TenantModule } from '@/lib/constants/roles'
 import { isDemoUser } from '@/lib/demo'
 
 /** Shape padrão devolvida por Server Actions ligadas a useActionState em formulários de admin. */
 export type ActionState = { error: string } | undefined
+
+/**
+ * A sessão é JWT: bloquear um utilizador, mudar o seu papel ou revogar
+ * permissões de sub-admin não invalida sessões já emitidas (só expiram
+ * sozinhas ou com logout manual). Por isso toda ação administrativa
+ * reconfirma o estado atual direto na BD antes de decidir — nunca confia
+ * cegamente em `role`/`permissions` do token, que podem estar até 30 dias
+ * desatualizados.
+ */
+async function withFreshUser(session: Session) {
+  const fresh = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    select: { role: true, isBlocked: true, permissions: true },
+  })
+  if (!fresh || fresh.isBlocked) {
+    throw new Error('Não autorizado.')
+  }
+  return { ...session, user: { ...session.user, role: fresh.role, permissions: fresh.permissions } }
+}
 
 /**
  * Toda Server Action de admin precisa validar a sessão por conta própria —
@@ -25,7 +46,11 @@ export async function requireStaffSession() {
   if (isDemoUser(session.user.id)) {
     throw new Error('Modo demo: ligue um banco de dados real para editar conteúdo.')
   }
-  return session
+  const fresh = await withFreshUser(session)
+  if (!STAFF_ROLES.includes(fresh.user.role)) {
+    throw new Error('Não autorizado.')
+  }
+  return fresh
 }
 
 export async function requireAdminSession() {
@@ -37,7 +62,11 @@ export async function requireAdminSession() {
   if (isDemoUser(session.user.id)) {
     throw new Error('Modo demo: ligue um banco de dados real para editar dados de utilizadores.')
   }
-  return session
+  const fresh = await withFreshUser(session)
+  if (!ADMIN_ROLES.includes(fresh.user.role)) {
+    throw new Error('Não autorizado.')
+  }
+  return fresh
 }
 
 /**

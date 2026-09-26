@@ -20,6 +20,7 @@ import { EnrollmentChart } from '@/components/admin/charts/EnrollmentChart'
 import { DEMO_ACTIVITY_LOG, DEMO_ADMIN_STATS, DEMO_ENROLLMENT_GROWTH, DEMO_SALES, isDemoUser } from '@/lib/demo'
 import { formatCurrency, formatDateTime } from '@/lib/format'
 import { SUPERADMIN_ROLES, hasModuleAccess, type TenantModule } from '@/lib/constants/roles'
+import { safeQuery } from '@/lib/db-safe'
 
 const ACTION_LABELS: Record<string, string> = {
   LOGIN: 'Entrou na plataforma',
@@ -29,6 +30,9 @@ const ACTION_LABELS: Record<string, string> = {
   USER_UNBLOCKED: 'Desbloqueou um utilizador',
   USER_CREATED: 'Criou uma conta',
   PERMISSIONS_UPDATED: 'Atualizou permissões de um sub-admin',
+  LEAD_STATUS_CHANGED: 'Mudou a fase de um lead do CRM',
+  LEAD_NOTE_ADDED: 'Adicionou uma nota a um lead do CRM',
+  LEAD_CONVERTED: 'Converteu um lead em aluno',
 }
 
 const QUICK_ACTIONS: { label: string; description: string; href: string; icon: React.ReactNode; module?: TenantModule; superAdminOnly?: boolean }[] = [
@@ -47,17 +51,29 @@ export default async function AdminPage() {
   const firstName = user.name?.split(' ')[0] ?? 'Admin'
   const isDemo = isDemoUser(user.id)
   const isSuperAdmin = SUPERADMIN_ROLES.includes(user.role)
+  const canSeeSales = hasModuleAccess(user, 'sales')
 
   const health = getSystemHealth()
   const [stats, enrollmentGrowth, revenue, activity, dbOk] = isDemo
     ? [DEMO_ADMIN_STATS, DEMO_ENROLLMENT_GROWTH, DEMO_SALES, DEMO_ACTIVITY_LOG, true]
-    : await Promise.all([
-        loadPlatformStats(),
-        loadEnrollmentGrowth(),
-        loadRevenueByMonth(),
-        isSuperAdmin ? loadActivity() : Promise.resolve([]),
-        isSuperAdmin ? checkDatabase() : Promise.resolve(true),
-      ])
+    : await safeQuery(
+        () =>
+          Promise.all([
+            loadPlatformStats(),
+            loadEnrollmentGrowth(),
+            loadRevenueByMonth(),
+            isSuperAdmin ? loadActivity() : Promise.resolve([]),
+            isSuperAdmin ? checkDatabase() : Promise.resolve(true),
+          ]),
+        [
+          { totalStudents: 0, activeEnrollments: 0, publishedCourses: 0, totalRevenueCents: 0 },
+          [],
+          { revenueByMonth: [], totalRevenue: 0, paidCount: 0 },
+          [],
+          false,
+        ] as const,
+        'admin overview',
+      )
 
   const quickActions = QUICK_ACTIONS.filter((action) => {
     if (action.superAdminOnly) return isSuperAdmin
@@ -67,28 +83,30 @@ export default async function AdminPage() {
 
   return (
     <div className="mx-auto max-w-6xl">
-      <p className="text-sm text-slate-400">Visão geral</p>
+      <p className="text-sm text-muted-foreground">Visão geral</p>
       <h1 className="mt-1 text-3xl font-bold tracking-tight">Bom dia, {firstName}.</h1>
-      <p className="mt-2 text-slate-500 dark:text-slate-400">Aqui está o que está a acontecer na Next Level.</p>
+      <p className="mt-2 text-muted-foreground">Aqui está o que está a acontecer na Next Level.</p>
 
-      <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className={`mt-8 grid gap-4 sm:grid-cols-2 ${canSeeSales ? 'lg:grid-cols-4' : 'lg:grid-cols-3'}`}>
         <Stat icon={<Users size={18} />} label="Total de alunos" value={String(stats.totalStudents)} />
         <Stat icon={<Zap size={18} />} label="Matrículas ativas" value={String(stats.activeEnrollments)} />
         <Stat icon={<BookOpen size={18} />} label="Cursos publicados" value={String(stats.publishedCourses)} />
-        <Stat icon={<BarChart3 size={18} />} label="Receita total" value={formatCurrency(stats.totalRevenueCents / 100)} />
+        {canSeeSales && <Stat icon={<BarChart3 size={18} />} label="Receita total" value={formatCurrency(stats.totalRevenueCents / 100)} />}
       </div>
 
-      <div className="mt-6 grid gap-4 lg:grid-cols-2">
-        <div className="rounded-3xl bg-white dark:bg-slate-900 p-6 shadow-sm ring-1 ring-slate-100 dark:ring-slate-800">
-          <h2 className="font-bold">Receita mensal</h2>
-          <p className="text-sm text-slate-400">Últimos 6 meses</p>
-          <div className="mt-4">
-            <RevenueChart data={revenue.revenueByMonth} />
+      <div className={`mt-6 grid gap-4 ${canSeeSales ? 'lg:grid-cols-2' : ''}`}>
+        {canSeeSales && (
+          <div className="rounded-3xl bg-card p-6 shadow-sm ring-1 ring-border">
+            <h2 className="font-bold">Receita mensal</h2>
+            <p className="text-sm text-muted-foreground">Últimos 6 meses</p>
+            <div className="mt-4">
+              <RevenueChart data={revenue.revenueByMonth} />
+            </div>
           </div>
-        </div>
-        <div className="rounded-3xl bg-white dark:bg-slate-900 p-6 shadow-sm ring-1 ring-slate-100 dark:ring-slate-800">
+        )}
+        <div className="rounded-3xl bg-card p-6 shadow-sm ring-1 ring-border">
           <h2 className="font-bold">Novas matrículas</h2>
-          <p className="text-sm text-slate-400">Últimos 6 meses</p>
+          <p className="text-sm text-muted-foreground">Últimos 6 meses</p>
           <div className="mt-4">
             <EnrollmentChart data={enrollmentGrowth} />
           </div>
@@ -101,14 +119,14 @@ export default async function AdminPage() {
           <Link
             key={action.href}
             href={action.href}
-            className="flex items-center gap-4 rounded-2xl bg-white dark:bg-slate-900 p-4 shadow-sm ring-1 ring-slate-100 dark:ring-slate-800 transition hover:ring-violet-200 dark:hover:ring-violet-800"
+            className="flex items-center gap-4 rounded-2xl bg-card p-4 shadow-sm ring-1 ring-border transition hover:ring-primary/30"
           >
-            <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-violet-50 dark:bg-violet-500/10 text-violet-600 dark:text-violet-400">
+            <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
               {action.icon}
             </span>
             <div>
               <p className="font-semibold">{action.label}</p>
-              <p className="text-xs text-slate-500 dark:text-slate-400">{action.description}</p>
+              <p className="text-xs text-muted-foreground">{action.description}</p>
             </div>
           </Link>
         ))}
@@ -126,15 +144,15 @@ export default async function AdminPage() {
           </div>
 
           <h2 className="mt-8 text-lg font-bold">Atividade recente</h2>
-          <div className="mt-3 overflow-hidden rounded-3xl bg-white shadow-sm ring-1 ring-slate-100 dark:bg-slate-900 dark:ring-slate-800">
-            {activity.length === 0 && <p className="p-5 text-sm text-slate-400">Ainda sem atividade registada.</p>}
+          <div className="mt-3 overflow-hidden rounded-3xl bg-card shadow-sm ring-1 ring-border">
+            {activity.length === 0 && <p className="p-5 text-sm text-muted-foreground">Ainda sem atividade registada.</p>}
             {activity.map((entry) => (
-              <div key={entry.id} className="flex items-center justify-between border-b border-slate-50 px-5 py-3 text-sm last:border-0 dark:border-slate-800">
+              <div key={entry.id} className="flex items-center justify-between border-b border-border px-5 py-3 text-sm last:border-0">
                 <div>
                   <span className="font-semibold">{entry.userName}</span>{' '}
-                  <span className="text-slate-500 dark:text-slate-400">{ACTION_LABELS[entry.action] ?? entry.action}</span>
+                  <span className="text-muted-foreground">{ACTION_LABELS[entry.action] ?? entry.action}</span>
                 </div>
-                <span className="text-xs text-slate-400">{formatDateTime(entry.createdAt)}</span>
+                <span className="text-xs text-muted-foreground">{formatDateTime(entry.createdAt)}</span>
               </div>
             ))}
           </div>
@@ -179,9 +197,9 @@ async function loadActivity() {
 
 function Stat({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
   return (
-    <div className="rounded-2xl bg-white dark:bg-slate-900 p-5 shadow-sm ring-1 ring-slate-100 dark:ring-slate-800">
-      <span className="grid h-9 w-9 place-items-center rounded-xl bg-violet-50 dark:bg-violet-500/10 text-violet-600 dark:text-violet-400">{icon}</span>
-      <p className="mt-5 text-sm text-slate-500 dark:text-slate-400">{label}</p>
+    <div className="rounded-2xl bg-card p-5 shadow-sm ring-1 ring-border">
+      <span className="grid h-9 w-9 place-items-center rounded-xl bg-primary/10 text-primary">{icon}</span>
+      <p className="mt-5 text-sm text-muted-foreground">{label}</p>
       <p className="mt-1 text-2xl font-bold">{value}</p>
     </div>
   )
@@ -189,11 +207,11 @@ function Stat({ icon, label, value }: { icon: React.ReactNode; label: string; va
 
 function HealthItem({ label, ok, okText, badText }: { label: string; ok: boolean; okText: string; badText: string }) {
   return (
-    <div className="flex items-center gap-3 rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-100 dark:bg-slate-900 dark:ring-slate-800">
-      {ok ? <CheckCircle2 size={20} className="shrink-0 text-teal-500" /> : <XCircle size={20} className="shrink-0 text-amber-500" />}
+    <div className="flex items-center gap-3 rounded-2xl bg-card p-4 shadow-sm ring-1 ring-border">
+      {ok ? <CheckCircle2 size={20} className="shrink-0 text-success" /> : <XCircle size={20} className="shrink-0 text-warning" />}
       <div>
         <p className="text-sm font-semibold">{label}</p>
-        <p className="text-xs text-slate-500 dark:text-slate-400">{ok ? okText : badText}</p>
+        <p className="text-xs text-muted-foreground">{ok ? okText : badText}</p>
       </div>
     </div>
   )

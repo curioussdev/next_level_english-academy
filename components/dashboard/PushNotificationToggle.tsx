@@ -22,7 +22,7 @@ export function PushNotificationToggle() {
   }
 
   if (!isSupported) {
-    return <p className="text-sm text-slate-400">O seu navegador não suporta notificações push.</p>
+    return <p className="text-sm text-muted-foreground">O seu navegador não suporta notificações push.</p>
   }
 
   return (
@@ -30,7 +30,7 @@ export function PushNotificationToggle() {
       type="button"
       onClick={handleClick}
       disabled={isPending}
-      className="flex min-h-11 items-center gap-3 rounded-xl border border-slate-200 dark:border-slate-700 px-4 text-sm font-semibold text-slate-700 dark:text-slate-200 transition hover:bg-slate-50 disabled:opacity-60"
+      className="flex min-h-11 items-center gap-3 rounded-xl border border-border px-4 text-sm font-semibold text-foreground transition hover:bg-muted disabled:opacity-60"
     >
       {isSubscribed ? <BellOff size={17} /> : <Bell size={17} />}
       {isPending ? 'A atualizar...' : isSubscribed ? 'Desativar notificações' : 'Ativar notificações'}

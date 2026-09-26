@@ -13,6 +13,8 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   if (!STAFF_ROLES.includes(session.user.role)) {
     redirect('/student')
   }
+  // Bloqueio de conta é verificado no Proxy (lib/auth.config.ts), antes de
+  // qualquer render — ver comentário lá para o porquê de não repetir aqui.
 
   const notifications = await loadNotificationsForUser(session.user.id)
 

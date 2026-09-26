@@ -1,5 +1,5 @@
 export function Skeleton({ className = '' }: { className?: string }) {
-  return <div className={`animate-pulse rounded-md bg-slate-200 dark:bg-slate-800 ${className}`} />
+  return <div className={`animate-pulse rounded-md bg-muted ${className}`} />
 }
 
 /** Cabeçalho de página + grelha de KPIs (4 cards) — Visão geral, Director. */
@@ -24,7 +24,7 @@ export function TableSkeleton({ rows = 6 }: { rows?: number }) {
     <div className="mx-auto max-w-6xl">
       <Skeleton className="h-8 w-40" />
       <Skeleton className="mt-2 h-4 w-56" />
-      <div className="mt-6 space-y-3 rounded-3xl bg-white p-5 ring-1 ring-slate-100 dark:bg-slate-900 dark:ring-slate-800">
+      <div className="mt-6 space-y-3 rounded-3xl bg-card p-5 ring-1 ring-border">
         {Array.from({ length: rows }).map((_, i) => (
           <Skeleton key={i} className="h-12 w-full" />
         ))}
@@ -53,11 +53,40 @@ export function FormSkeleton() {
   return (
     <div className="mx-auto max-w-2xl">
       <Skeleton className="h-8 w-40" />
-      <div className="mt-6 space-y-4 rounded-3xl bg-white p-6 ring-1 ring-slate-100 dark:bg-slate-900 dark:ring-slate-800">
+      <div className="mt-6 space-y-4 rounded-3xl bg-card p-6 ring-1 ring-border">
         <Skeleton className="h-11 w-full" />
         <Skeleton className="h-11 w-full" />
         <Skeleton className="h-24 w-full" />
         <Skeleton className="h-11 w-32" />
+      </div>
+    </div>
+  )
+}
+
+/** Vídeo de aula — player em destaque + texto abaixo. */
+export function LessonSkeleton() {
+  return (
+    <div className="mx-auto max-w-5xl">
+      <Skeleton className="h-3 w-56" />
+      <Skeleton className="mt-3 h-7 w-80" />
+      <Skeleton className="mt-6 aspect-video w-full rounded-2xl" />
+      <Skeleton className="mt-8 h-24 w-full rounded-2xl" />
+    </div>
+  )
+}
+
+/** Formulário de criação + lista de cards abaixo — Sub-admins. */
+export function FormWithListSkeleton({ cards = 2 }: { cards?: number }) {
+  return (
+    <div className="mx-auto max-w-4xl">
+      <Skeleton className="h-8 w-40" />
+      <Skeleton className="mt-2 h-4 w-96" />
+      <Skeleton className="mt-8 h-48 w-full rounded-2xl" />
+      <Skeleton className="mt-10 h-5 w-48" />
+      <div className="mt-3 space-y-3">
+        {Array.from({ length: cards }).map((_, i) => (
+          <Skeleton key={i} className="h-20 w-full rounded-2xl" />
+        ))}
       </div>
     </div>
   )

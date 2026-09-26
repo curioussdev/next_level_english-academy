@@ -5,36 +5,39 @@ import { prisma } from '@/lib/prisma'
 import { formatCurrency } from '@/lib/format'
 import { CourseBuyButton } from '@/components/dashboard/CourseBuyButton'
 import { DEMO_COURSE_CATALOG, isDemoUser } from '@/lib/demo'
+import { safeQuery } from '@/lib/db-safe'
 
 export default async function StudentCoursesPage() {
   const session = await auth()
   const userId = session!.user.id
 
-  const { enrolled, available } = isDemoUser(userId) ? DEMO_COURSE_CATALOG : await loadCatalog(userId)
+  const { enrolled, available } = isDemoUser(userId)
+    ? DEMO_COURSE_CATALOG
+    : await safeQuery(() => loadCatalog(userId), { enrolled: [], available: [] }, 'catálogo de cursos')
 
   return (
     <div className="mx-auto max-w-6xl">
       <h1 className="text-3xl font-bold tracking-tight">Meus cursos</h1>
 
       {enrolled.length === 0 ? (
-        <p className="mt-4 text-slate-500 dark:text-slate-400">Ainda não está matriculado em nenhum curso.</p>
+        <p className="mt-4 text-muted-foreground">Ainda não está matriculado em nenhum curso.</p>
       ) : (
         <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {enrolled.map((item) => (
-            <div key={item.id} className="rounded-3xl bg-white dark:bg-slate-900 p-5 shadow-sm ring-1 ring-slate-100 dark:ring-slate-800">
-              <p className="text-xs font-semibold uppercase tracking-wider text-violet-600 dark:text-violet-400">{item.level ?? 'Curso'}</p>
+            <div key={item.id} className="rounded-3xl bg-card p-5 shadow-sm ring-1 ring-border">
+              <p className="text-xs font-semibold uppercase tracking-wider text-primary">{item.level ?? 'Curso'}</p>
               <h3 className="mt-2 text-lg font-bold">{item.courseTitle}</h3>
-              <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-slate-100">
+              <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-muted">
                 <div className="h-full rounded-full bg-violet-500" style={{ width: `${item.percentage}%` }} />
               </div>
-              <div className="mt-2 flex items-center justify-between text-xs text-slate-400">
+              <div className="mt-2 flex items-center justify-between text-xs text-muted-foreground">
                 <span>Progresso</span>
-                <b className="text-slate-700 dark:text-slate-200">{item.percentage}%</b>
+                <b className="text-foreground">{item.percentage}%</b>
               </div>
               {item.firstLessonId && (
                 <Link
                   href={`/student/lesson/${item.firstLessonId}`}
-                  className="mt-4 flex min-h-11 items-center justify-center gap-2 rounded-xl bg-violet-600 text-sm font-semibold text-white transition hover:bg-violet-700"
+                  className="mt-4 flex min-h-11 items-center justify-center gap-2 rounded-xl bg-primary text-sm font-semibold text-white transition hover:opacity-90"
                 >
                   <Play size={15} fill="currentColor" /> Continuar
                 </Link>
@@ -49,10 +52,10 @@ export default async function StudentCoursesPage() {
           <h2 className="mt-12 text-xl font-bold">Cursos disponíveis</h2>
           <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {available.map((course) => (
-              <div key={course.id} className="rounded-3xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-5">
-                <p className="text-xs font-semibold uppercase tracking-wider text-violet-600 dark:text-violet-400">{course.level ?? 'Curso'}</p>
+              <div key={course.id} className="rounded-3xl border border-border bg-card p-5">
+                <p className="text-xs font-semibold uppercase tracking-wider text-primary">{course.level ?? 'Curso'}</p>
                 <h3 className="mt-2 text-lg font-bold">{course.title}</h3>
-                {course.description && <p className="mt-2 line-clamp-2 text-sm text-slate-500 dark:text-slate-400">{course.description}</p>}
+                {course.description && <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">{course.description}</p>}
                 <p className="mt-4 text-2xl font-bold">{formatCurrency(course.price, course.currency)}</p>
                 <CourseBuyButton courseId={course.id} />
               </div>

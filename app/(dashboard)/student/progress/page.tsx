@@ -3,41 +3,42 @@ import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { formatDuration } from '@/lib/format'
 import { DEMO_PROGRESS, isDemoUser } from '@/lib/demo'
+import { safeQuery } from '@/lib/db-safe'
 
 export default async function StudentProgressPage() {
   const session = await auth()
   const userId = session!.user.id
 
-  const courses = isDemoUser(userId) ? DEMO_PROGRESS : await loadProgress(userId)
+  const courses = isDemoUser(userId) ? DEMO_PROGRESS : await safeQuery(() => loadProgress(userId), [], 'progresso do aluno')
 
   return (
     <div className="mx-auto max-w-4xl">
       <h1 className="text-3xl font-bold tracking-tight">O seu progresso</h1>
 
       {courses.length === 0 ? (
-        <p className="mt-4 text-slate-500 dark:text-slate-400">Matricule-se num curso para acompanhar o seu progresso aqui.</p>
+        <p className="mt-4 text-muted-foreground">Matricule-se num curso para acompanhar o seu progresso aqui.</p>
       ) : (
         <div className="mt-6 space-y-6">
           {courses.map((course) => (
-            <div key={course.courseId} className="rounded-3xl bg-white dark:bg-slate-900 p-6 shadow-sm ring-1 ring-slate-100 dark:ring-slate-800">
+            <div key={course.courseId} className="rounded-3xl bg-card p-6 shadow-sm ring-1 ring-border">
               <h2 className="text-lg font-bold">{course.courseTitle}</h2>
               <div className="mt-4 space-y-6">
                 {course.modules.map((courseModule) => (
                   <div key={courseModule.id}>
-                    <p className="text-xs font-bold uppercase tracking-wider text-slate-400">{courseModule.title}</p>
+                    <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">{courseModule.title}</p>
                     <div className="mt-2 space-y-1">
                       {courseModule.lessons.map((lesson) => (
                         <div key={lesson.id} className="flex items-center gap-3 rounded-xl px-3 py-2 text-sm">
                           <span
                             className={`grid h-7 w-7 shrink-0 place-items-center rounded-full ${
-                              lesson.isCompleted ? 'bg-teal-100 text-teal-600' : 'bg-slate-100 text-slate-400'
+                              lesson.isCompleted ? 'bg-success/10 text-success' : 'bg-muted text-muted-foreground'
                             }`}
                           >
                             {lesson.isCompleted ? <Check size={14} /> : <span className="text-xs">{lesson.order}</span>}
                           </span>
-                          <span className="flex-1 text-slate-700 dark:text-slate-200">{lesson.title}</span>
+                          <span className="flex-1 text-foreground">{lesson.title}</span>
                           {lesson.totalTimeWatched > 0 && (
-                            <span className="text-xs text-slate-400">{formatDuration(lesson.totalTimeWatched)}</span>
+                            <span className="text-xs text-muted-foreground">{formatDuration(lesson.totalTimeWatched)}</span>
                           )}
                         </div>
                       ))}

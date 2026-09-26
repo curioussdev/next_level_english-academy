@@ -112,9 +112,9 @@ export function DashboardShell({
   }
 
   return (
-    <div className="flex min-h-screen bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-white">
+    <div className="flex min-h-screen bg-background text-foreground">
       {/* Sidebar — visível a partir de lg, escondida em mobile (substituída pela bottom nav) */}
-      <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 border-r border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900 lg:flex lg:flex-col">
+      <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 border-r border-border bg-sidebar p-5 lg:flex lg:flex-col">
         <Logo />
         <nav className="mt-10 flex-1 space-y-1">
           {navItems.map((item) => (
@@ -123,8 +123,8 @@ export function DashboardShell({
               href={item.href}
               className={`flex min-h-11 items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium transition ${
                 isActive(item.href)
-                  ? 'bg-violet-50 text-violet-700 dark:bg-violet-500/10 dark:text-violet-300'
-                  : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white'
+                  ? 'bg-primary/10 text-primary'
+                  : 'text-muted-foreground hover:bg-foreground/5 hover:text-foreground'
               }`}
             >
               {item.icon}
@@ -132,21 +132,21 @@ export function DashboardShell({
             </Link>
           ))}
         </nav>
-        <div className="border-t border-slate-100 pt-5 dark:border-slate-800">
+        <div className="border-t border-border pt-5">
           <div className="flex items-center gap-3">
-            <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-violet-100 text-xs font-bold text-violet-700 dark:bg-violet-500/20 dark:text-violet-300">
+            <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-primary/10 text-xs font-bold text-primary dark:bg-violet-500/20">
               {initials}
             </span>
             <div className="min-w-0 flex-1">
               <p className="truncate text-sm font-semibold">{userName}</p>
-              {userPlan && <p className="text-xs text-slate-400">{userPlan}</p>}
+              {userPlan && <p className="text-xs text-muted-foreground">{userPlan}</p>}
             </div>
             <ThemeToggle />
             <button
               type="button"
               aria-label="Sair"
               onClick={() => signOut({ callbackUrl: '/' })}
-              className="grid h-9 w-9 shrink-0 place-items-center rounded-lg text-slate-400 hover:bg-slate-50 hover:text-slate-900 dark:hover:bg-slate-800 dark:hover:text-white"
+              className="grid h-9 w-9 shrink-0 place-items-center rounded-lg text-muted-foreground hover:bg-foreground/5 hover:text-foreground"
             >
               <LogOut size={17} />
             </button>
@@ -164,7 +164,7 @@ export function DashboardShell({
         />
       )}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 w-72 max-w-[80vw] border-r border-slate-200 bg-white p-5 transition-transform dark:border-slate-800 dark:bg-slate-900 lg:hidden ${
+        className={`fixed inset-y-0 left-0 z-50 w-72 max-w-[80vw] border-r border-border bg-sidebar p-5 transition-transform lg:hidden ${
           mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
@@ -174,7 +174,7 @@ export function DashboardShell({
             type="button"
             aria-label="Fechar menu"
             onClick={() => setMobileMenuOpen(false)}
-            className="grid h-11 w-11 place-items-center text-slate-500 dark:text-slate-400"
+            className="grid h-11 w-11 place-items-center text-muted-foreground"
           >
             <X size={22} />
           </button>
@@ -187,8 +187,8 @@ export function DashboardShell({
               onClick={() => setMobileMenuOpen(false)}
               className={`flex min-h-11 items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium ${
                 isActive(item.href)
-                  ? 'bg-violet-50 text-violet-700 dark:bg-violet-500/10 dark:text-violet-300'
-                  : 'text-slate-500 dark:text-slate-400'
+                  ? 'bg-primary/10 text-primary'
+                  : 'text-muted-foreground'
               }`}
             >
               {item.icon}
@@ -198,7 +198,7 @@ export function DashboardShell({
           <Link
             href={`/${role}/settings`}
             onClick={() => setMobileMenuOpen(false)}
-            className="flex min-h-11 items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium text-slate-500 dark:text-slate-400"
+            className="flex min-h-11 items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium text-muted-foreground"
           >
             <Settings size={20} />
             Configurações
@@ -206,30 +206,30 @@ export function DashboardShell({
           <button
             type="button"
             onClick={() => signOut({ callbackUrl: '/' })}
-            className="flex min-h-11 w-full items-center gap-3 rounded-xl px-3 py-3 text-left text-sm font-medium text-slate-500 dark:text-slate-400"
+            className="flex min-h-11 w-full items-center gap-3 rounded-xl px-3 py-3 text-left text-sm font-medium text-muted-foreground"
           >
             <LogOut size={20} />
             Sair
           </button>
         </nav>
-        <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-4 dark:border-slate-800">
-          <span className="text-sm font-medium text-slate-500 dark:text-slate-400">Tema</span>
+        <div className="mt-4 flex items-center justify-between border-t border-border pt-4">
+          <span className="text-sm font-medium text-muted-foreground">Tema</span>
           <ThemeToggle />
         </div>
       </aside>
 
       <div className="min-w-0 flex-1 lg:pl-64">
-        <header className="sticky top-0 z-20 flex h-16 items-center justify-between border-b border-slate-200 bg-white/90 px-5 backdrop-blur dark:border-slate-800 dark:bg-slate-950/90 lg:h-20 lg:px-8">
+        <header className="sticky top-0 z-20 flex h-16 items-center justify-between border-b border-border bg-sidebar/90 px-5 backdrop-blur lg:h-20 lg:px-8">
           <button
             type="button"
             aria-label="Abrir menu"
             onClick={() => setMobileMenuOpen(true)}
-            className="grid h-11 w-11 place-items-center text-slate-600 dark:text-slate-300 lg:hidden"
+            className="grid h-11 w-11 place-items-center text-muted-foreground lg:hidden"
           >
             <Menu size={22} />
           </button>
-          <div className="hidden items-center gap-2 text-sm text-slate-400 lg:flex">
-            <span className="text-slate-900 dark:text-white">{role === 'admin' ? 'Admin' : 'Dashboard'}</span>
+          <div className="hidden items-center gap-2 text-sm text-muted-foreground lg:flex">
+            <span className="text-foreground">{role === 'admin' ? 'Admin' : 'Dashboard'}</span>
           </div>
           <div className="flex items-center gap-2">
             <ThemeToggle className="hidden lg:grid" />
@@ -238,7 +238,7 @@ export function DashboardShell({
               type="button"
               aria-label="Mais opções"
               onClick={() => setMobileMenuOpen(true)}
-              className="grid h-11 w-11 place-items-center text-slate-400 lg:hidden"
+              className="grid h-11 w-11 place-items-center text-muted-foreground lg:hidden"
             >
               <MoreHorizontal size={19} />
             </button>
@@ -246,7 +246,7 @@ export function DashboardShell({
         </header>
 
         {isDemo && (
-          <div className="bg-amber-50 px-5 py-2 text-center text-xs font-medium text-amber-800 dark:bg-amber-500/10 dark:text-amber-300 lg:px-8">
+          <div className="bg-warning/10 px-5 py-2 text-center text-xs font-medium text-warning lg:px-8">
             Modo demo — sem conexão com o banco de dados. Os dados mostrados aqui são fictícios.
           </div>
         )}
@@ -257,13 +257,13 @@ export function DashboardShell({
       </div>
 
       {/* Bottom navigation — só em mobile, itens principais a um toque de distância do polegar */}
-      <nav className="fixed inset-x-0 bottom-0 z-30 flex border-t border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 lg:hidden">
+      <nav className="fixed inset-x-0 bottom-0 z-30 flex border-t border-border bg-sidebar lg:hidden">
         {navItems.map((item) => (
           <Link
             key={item.href}
             href={item.href}
             className={`flex min-h-[56px] flex-1 flex-col items-center justify-center gap-0.5 text-[11px] font-medium ${
-              isActive(item.href) ? 'text-violet-600 dark:text-violet-400' : 'text-slate-400'
+              isActive(item.href) ? 'text-primary' : 'text-muted-foreground'
             }`}
           >
             {item.icon}

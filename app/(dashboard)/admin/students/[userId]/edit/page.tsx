@@ -6,6 +6,7 @@ import { prisma } from '@/lib/prisma'
 import { canManageUser } from '@/lib/constants/roles'
 import { isDemoUser } from '@/lib/demo'
 import { EditStudentForm } from '@/components/admin/EditStudentForm'
+import { safeQuery } from '@/lib/db-safe'
 
 export default async function EditStudentPage({ params }: { params: Promise<{ userId: string }> }) {
   const { userId } = await params
@@ -13,23 +14,28 @@ export default async function EditStudentPage({ params }: { params: Promise<{ us
 
   if (isDemoUser(session!.user.id)) notFound()
 
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
-    select: {
-      id: true,
-      name: true,
-      email: true,
-      role: true,
-      phone: true,
-      bio: true,
-      dateOfBirth: true,
-      country: true,
-      city: true,
-      currentLevel: true,
-      learningGoals: true,
-      nif: true,
-    },
-  })
+  const user = await safeQuery(
+    () =>
+      prisma.user.findUnique({
+        where: { id: userId },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          role: true,
+          phone: true,
+          bio: true,
+          dateOfBirth: true,
+          country: true,
+          city: true,
+          currentLevel: true,
+          learningGoals: true,
+          nif: true,
+        },
+      }),
+    null,
+    'edição de aluno',
+  )
 
   if (!user) notFound()
   if (!canManageUser(session!.user.role, user.role)) notFound()
@@ -38,12 +44,12 @@ export default async function EditStudentPage({ params }: { params: Promise<{ us
     <div className="mx-auto max-w-2xl">
       <Link
         href={`/admin/students/${user.id}`}
-        className="inline-flex items-center gap-1 text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-slate-900"
+        className="inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground"
       >
         <ArrowLeft size={16} /> {user.name ?? user.email}
       </Link>
       <h1 className="mt-3 text-3xl font-bold tracking-tight">Editar perfil</h1>
-      <p className="mt-2 text-slate-500 dark:text-slate-400">Todos os campos, incluindo o NIF — só o staff pode corrigi-lo.</p>
+      <p className="mt-2 text-muted-foreground">Todos os campos, incluindo o NIF — só o staff pode corrigi-lo.</p>
 
       <EditStudentForm
         userId={user.id}

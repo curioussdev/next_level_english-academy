@@ -1,3 +1,5 @@
+import { getAppUrl } from '@/lib/env'
+
 function layout(bodyHtml: string) {
   return `<!DOCTYPE html>
 <html lang="pt">
@@ -39,7 +41,7 @@ export function welcomeEmail(name: string) {
     <p style="margin:0;font-size:14px;line-height:1.6;color:#475569;">
       A sua conta na Next Level foi criada com sucesso. Já pode explorar o catálogo de cursos e começar a evoluir o seu inglês hoje mesmo.
     </p>
-    ${button(`${process.env.NEXTAUTH_URL ?? 'http://localhost:3000'}/student/courses`, 'Explorar cursos')}
+    ${button(`${getAppUrl()}/student/courses`, 'Explorar cursos')}
   `)
 }
 
@@ -53,6 +55,24 @@ export function passwordResetEmail(resetUrl: string) {
     <p style="margin:20px 0 0;font-size:12px;line-height:1.6;color:#94a3b8;">
       Se não foi você quem pediu isto, pode ignorar este email com segurança — a sua palavra-passe não será alterada.
     </p>
+  `)
+}
+
+export function accountCreatedByStaffEmail(name: string, email: string, tempPassword: string) {
+  return layout(`
+    <h1 style="margin:0 0 8px;font-size:22px;color:#0f172a;">Bem-vindo(a) à Next Level, ${name}!</h1>
+    <p style="margin:0;font-size:14px;line-height:1.6;color:#475569;">
+      Foi criada uma conta para si na plataforma. Use estas credenciais para entrar — recomendamos que altere a palavra-passe assim que entrar pela primeira vez.
+    </p>
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-top:16px;background:#f8fafc;border-radius:12px;">
+      <tr><td style="padding:16px;">
+        <p style="margin:0 0 4px;font-size:12px;color:#94a3b8;">Email</p>
+        <p style="margin:0 0 12px;font-size:14px;color:#0f172a;font-weight:600;">${email}</p>
+        <p style="margin:0 0 4px;font-size:12px;color:#94a3b8;">Palavra-passe temporária</p>
+        <p style="margin:0;font-size:16px;color:#0f172a;font-weight:700;font-family:monospace;">${tempPassword}</p>
+      </td></tr>
+    </table>
+    ${button(`${getAppUrl()}/login`, 'Entrar agora')}
   `)
 }
 

@@ -7,18 +7,21 @@ import { CourseEditForm } from '@/components/admin/CourseEditForm'
 import { CourseModulesManager } from '@/components/admin/CourseModulesManager'
 import { DeleteCourseButton, PublishToggle } from '@/components/admin/CourseActions'
 import { getDemoCourseDetail, isDemoUser } from '@/lib/demo'
+import { safeQuery } from '@/lib/db-safe'
 
 export default async function AdminCourseDetailPage({ params }: { params: Promise<{ courseId: string }> }) {
   const { courseId } = await params
   const session = await auth()
 
-  const course = isDemoUser(session!.user.id) ? getDemoCourseDetail(courseId) : await loadCourse(courseId)
+  const course = isDemoUser(session!.user.id)
+    ? getDemoCourseDetail(courseId)
+    : await safeQuery(() => loadCourse(courseId), null, 'detalhe do curso')
 
   if (!course) notFound()
 
   return (
     <div className="mx-auto max-w-3xl">
-      <Link href="/admin/courses" className="inline-flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400 hover:text-slate-900">
+      <Link href="/admin/courses" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
         <ArrowLeft size={16} /> Cursos
       </Link>
 

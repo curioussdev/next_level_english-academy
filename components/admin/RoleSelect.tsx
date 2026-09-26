@@ -26,7 +26,7 @@ export function RoleSelect({ userId, currentRole }: { userId: string; currentRol
       defaultValue={currentRole}
       disabled={isPending}
       onChange={(e) => handleChange(e.target.value as AppRole)}
-      className="mt-1 h-9 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-2 text-sm text-slate-900 dark:text-white outline-none focus:border-violet-500 disabled:opacity-60"
+      className="mt-1 h-9 rounded-lg border border-border bg-card px-2 text-sm text-foreground outline-none focus:border-primary disabled:opacity-60"
     >
       {ROLE_OPTIONS.map((role) => (
         <option key={role} value={role}>

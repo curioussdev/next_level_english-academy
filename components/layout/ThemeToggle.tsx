@@ -12,7 +12,7 @@ import { Moon, Sun } from 'lucide-react'
  * distintas para a mesma propriedade não têm ordem de precedência garantida
  * pela ordem no JSX).
  */
-export function ThemeToggle({ className = '', colorClassName = 'text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800' }: { className?: string; colorClassName?: string }) {
+export function ThemeToggle({ className = '', colorClassName = 'text-muted-foreground hover:bg-foreground/5' }: { className?: string; colorClassName?: string }) {
   const { resolvedTheme, setTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
 

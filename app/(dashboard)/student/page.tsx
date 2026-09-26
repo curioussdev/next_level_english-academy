@@ -4,34 +4,41 @@ import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { formatDuration } from '@/lib/format'
 import { DEMO_DASHBOARD_STATS, isDemoUser } from '@/lib/demo'
+import { safeQuery } from '@/lib/db-safe'
 
 export default async function StudentPage() {
   const session = await auth()
   const userId = session!.user.id
   const firstName = session?.user?.name?.split(' ')[0] ?? 'aluno'
 
-  const stats = isDemoUser(userId) ? DEMO_DASHBOARD_STATS : await loadDashboardStats(userId)
+  const stats = isDemoUser(userId)
+    ? DEMO_DASHBOARD_STATS
+    : await safeQuery(
+        () => loadDashboardStats(userId),
+        { enrolledCount: 0, completedCount: 0, totalTimeWatched: 0, continueLesson: null },
+        'dashboard do aluno',
+      )
   const { enrolledCount, completedCount, totalTimeWatched, continueLesson } = stats
 
   return (
     <div className="mx-auto max-w-6xl">
       <div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
         <div>
-          <p className="text-sm font-medium text-slate-400">Bem-vindo de volta</p>
+          <p className="text-sm font-medium text-muted-foreground">Bem-vindo de volta</p>
           <h1 className="mt-1 text-3xl font-bold tracking-tight">Olá, {firstName}!</h1>
-          <p className="mt-2 text-slate-500 dark:text-slate-400">Pronto para dar mais um passo hoje?</p>
+          <p className="mt-2 text-muted-foreground">Pronto para dar mais um passo hoje?</p>
         </div>
         {continueLesson ? (
           <Link
             href={`/student/lesson/${continueLesson.lessonId}`}
-            className="flex min-h-11 items-center justify-center gap-2 rounded-xl bg-violet-600 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-violet-600/20 hover:bg-violet-700"
+            className="flex min-h-11 items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-violet-600/20 hover:opacity-90"
           >
             <Play size={16} fill="currentColor" /> Continuar: {continueLesson.title}
           </Link>
         ) : (
           <Link
             href="/student/courses"
-            className="flex min-h-11 items-center justify-center gap-2 rounded-xl bg-violet-600 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-violet-600/20 hover:bg-violet-700"
+            className="flex min-h-11 items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-violet-600/20 hover:opacity-90"
           >
             Explorar cursos
           </Link>
@@ -63,10 +70,10 @@ export default async function StudentPage() {
       </div>
 
       {enrolledCount === 0 && (
-        <div className="mt-10 rounded-3xl bg-white dark:bg-slate-900 p-8 text-center shadow-sm ring-1 ring-slate-100 dark:ring-slate-800">
-          <Sparkles className="mx-auto text-violet-400" size={28} />
+        <div className="mt-10 rounded-3xl bg-card p-8 text-center shadow-sm ring-1 ring-border">
+          <Sparkles className="mx-auto text-primary" size={28} />
           <h2 className="mt-4 text-lg font-bold">Ainda sem cursos matriculados</h2>
-          <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">Assim que se inscrever num curso, o seu progresso aparece aqui.</p>
+          <p className="mt-2 text-sm text-muted-foreground">Assim que se inscrever num curso, o seu progresso aparece aqui.</p>
         </div>
       )}
     </div>
@@ -107,14 +114,14 @@ function Stat({
   color: 'orange' | 'violet' | 'teal'
 }) {
   const toneClass =
-    color === 'orange' ? 'bg-orange-100 text-orange-600' : color === 'teal' ? 'bg-teal-100 text-teal-600' : 'bg-violet-100 text-violet-600'
+    color === 'orange' ? 'bg-orange-100 text-orange-600' : color === 'teal' ? 'bg-success/10 text-success' : 'bg-primary/10 text-violet-600'
 
   return (
-    <div className="rounded-2xl bg-white dark:bg-slate-900 p-5 shadow-sm ring-1 ring-slate-100 dark:ring-slate-800">
+    <div className="rounded-2xl bg-card p-5 shadow-sm ring-1 ring-border">
       <span className={`grid h-9 w-9 place-items-center rounded-xl ${toneClass}`}>{icon}</span>
-      <p className="mt-5 text-sm text-slate-500 dark:text-slate-400">{label}</p>
+      <p className="mt-5 text-sm text-muted-foreground">{label}</p>
       <p className="mt-1 text-2xl font-bold">{value}</p>
-      <p className="mt-1 text-xs text-slate-400">{detail}</p>
+      <p className="mt-1 text-xs text-muted-foreground">{detail}</p>
     </div>
   )
 }

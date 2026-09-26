@@ -36,7 +36,7 @@ export function TestimonialActions({ id, isActive }: { id: string; isActive: boo
         onClick={handleToggle}
         disabled={isPending}
         className={`min-h-9 rounded-lg px-3 text-xs font-semibold transition disabled:opacity-60 ${
-          isActive ? 'bg-slate-100 text-slate-600 hover:bg-slate-200' : 'bg-teal-50 dark:bg-teal-500/10 text-teal-700 dark:text-teal-300 hover:bg-teal-100'
+          isActive ? 'bg-muted text-muted-foreground hover:opacity-80' : 'bg-success/10 text-success hover:bg-success/20'
         }`}
       >
         {isPending ? '...' : isActive ? 'Ocultar' : 'Publicar'}
@@ -45,7 +45,7 @@ export function TestimonialActions({ id, isActive }: { id: string; isActive: boo
         type="button"
         onClick={handleDelete}
         disabled={isPending}
-        className="grid h-9 w-9 place-items-center rounded-lg text-slate-300 hover:bg-red-50 hover:text-red-600 disabled:opacity-60"
+        className="grid h-9 w-9 place-items-center rounded-lg text-foreground hover:bg-destructive/10 hover:text-destructive disabled:opacity-60"
         aria-label="Apagar depoimento"
       >
         <Trash2 size={15} />

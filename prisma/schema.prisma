@@ -47,6 +47,8 @@ enum ContentType {
   PRICING
   FAQ
   CTA
+  STEPS
+  FOOTER
 }
 
 model User {
@@ -310,6 +312,7 @@ model ActivityLog {
   @@index([userId])
   @@index([action])
   @@index([createdAt])
+  @@index([entityType, entityId])
 }
 
 model Transaction {
@@ -342,7 +345,7 @@ model CMSContent {
   page        String      @default("landing") // landing, about, pricing
   contentType ContentType
 
-  title    String
+  title    String?
   subtitle String?
   body     Json?
   media    String[]
@@ -353,6 +356,7 @@ model CMSContent {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  @@unique([page, contentType], name: "page_contentType")
   @@index([page])
   @@index([contentType])
   @@index([isActive])

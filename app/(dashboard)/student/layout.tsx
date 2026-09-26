@@ -9,6 +9,8 @@ export default async function StudentLayout({ children }: { children: React.Reac
   if (!session?.user) {
     redirect('/login?callbackUrl=/student')
   }
+  // Bloqueio de conta é verificado no Proxy (lib/auth.config.ts), antes de
+  // qualquer render — ver comentário lá para o porquê de não repetir aqui.
 
   const notifications = await loadNotificationsForUser(session.user.id)
 

@@ -48,7 +48,7 @@ function ModuleCard({ courseId, module: courseModule }: { courseId: string; modu
   }
 
   return (
-    <div className="rounded-3xl bg-white dark:bg-slate-900 p-5 shadow-sm ring-1 ring-slate-100 dark:ring-slate-800">
+    <div className="rounded-3xl bg-card p-5 shadow-sm ring-1 ring-border">
       <div className="flex items-center justify-between">
         <h3 className="font-bold">
           {courseModule.order}. {courseModule.title}
@@ -57,7 +57,7 @@ function ModuleCard({ courseId, module: courseModule }: { courseId: string; modu
           type="button"
           onClick={handleDeleteModule}
           disabled={isPending}
-          className="grid h-9 w-9 place-items-center rounded-lg text-slate-400 hover:bg-red-50 hover:text-red-600 disabled:opacity-60"
+          className="grid h-9 w-9 place-items-center rounded-lg text-muted-foreground hover:bg-destructive/10 hover:text-destructive disabled:opacity-60"
           aria-label="Apagar módulo"
         >
           <Trash2 size={16} />
@@ -68,7 +68,7 @@ function ModuleCard({ courseId, module: courseModule }: { courseId: string; modu
         {courseModule.lessons.map((lesson) => (
           <LessonRow key={lesson.id} courseId={courseId} lesson={lesson} />
         ))}
-        {courseModule.lessons.length === 0 && <p className="text-sm text-slate-400">Sem aulas ainda.</p>}
+        {courseModule.lessons.length === 0 && <p className="text-sm text-muted-foreground">Sem aulas ainda.</p>}
       </div>
 
       {showAddLesson ? (
@@ -82,7 +82,7 @@ function ModuleCard({ courseId, module: courseModule }: { courseId: string; modu
         <button
           type="button"
           onClick={() => setShowAddLesson(true)}
-          className="mt-3 flex min-h-9 items-center gap-1 text-sm font-semibold text-violet-600 dark:text-violet-400 hover:text-violet-800"
+          className="mt-3 flex min-h-9 items-center gap-1 text-sm font-semibold text-primary hover:text-violet-800"
         >
           <Plus size={14} /> Adicionar aula
         </button>
@@ -106,18 +106,18 @@ function LessonRow({ courseId, lesson }: { courseId: string; lesson: Lesson }) {
   }
 
   return (
-    <div className="flex items-center gap-3 rounded-xl px-3 py-2 text-sm hover:bg-slate-50">
-      <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-slate-100 text-xs text-slate-500 dark:text-slate-400">
+    <div className="flex items-center gap-3 rounded-xl px-3 py-2 text-sm hover:bg-muted">
+      <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-muted text-xs text-muted-foreground">
         {lesson.order}
       </span>
-      <span className="flex-1 text-slate-700 dark:text-slate-200">{lesson.title}</span>
-      {lesson.isFree && <span className="rounded-full bg-teal-50 dark:bg-teal-500/10 px-2 py-0.5 text-[10px] font-bold text-teal-700 dark:text-teal-300">GRÁTIS</span>}
-      <span className="text-xs text-slate-400">{formatDuration(lesson.duration)}</span>
+      <span className="flex-1 text-foreground">{lesson.title}</span>
+      {lesson.isFree && <span className="rounded-full bg-success/10 px-2 py-0.5 text-[10px] font-bold text-success">GRÁTIS</span>}
+      <span className="text-xs text-muted-foreground">{formatDuration(lesson.duration)}</span>
       <button
         type="button"
         onClick={handleDelete}
         disabled={isPending}
-        className="grid h-7 w-7 shrink-0 place-items-center rounded-lg text-slate-300 hover:bg-red-50 hover:text-red-600 disabled:opacity-60"
+        className="grid h-7 w-7 shrink-0 place-items-center rounded-lg text-foreground hover:bg-destructive/10 hover:text-destructive disabled:opacity-60"
         aria-label="Apagar aula"
       >
         <Trash2 size={13} />
@@ -140,18 +140,18 @@ function AddModuleForm({ courseId, nextOrder }: { courseId: string; nextOrder: n
   }
 
   return (
-    <form action={handleSubmit} className="flex gap-2 rounded-3xl border border-dashed border-slate-200 dark:border-slate-700 p-4">
+    <form action={handleSubmit} className="flex gap-2 rounded-3xl border border-dashed border-border p-4">
       <input type="hidden" name="order" value={nextOrder} />
       <input
         name="title"
         placeholder="Título do novo módulo"
         required
-        className="h-11 flex-1 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 text-sm text-slate-900 dark:text-white outline-none placeholder:text-slate-400 focus:border-violet-500 focus:ring-2 focus:ring-violet-100"
+        className="h-11 flex-1 rounded-xl border border-border bg-card px-3 text-sm text-foreground outline-none placeholder:text-muted-foreground focus:border-primary focus:ring-2 focus:ring-primary/20"
       />
       <button
         type="submit"
         disabled={isPending}
-        className="flex min-h-11 items-center gap-1 rounded-xl bg-violet-600 px-4 text-sm font-semibold text-white transition hover:bg-violet-700 disabled:opacity-60"
+        className="flex min-h-11 items-center gap-1 rounded-xl bg-primary px-4 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-60"
       >
         <Plus size={15} /> Módulo
       </button>
@@ -184,20 +184,20 @@ function AddLessonForm({
   }
 
   return (
-    <form action={handleSubmit} className="mt-3 space-y-2 rounded-xl border border-dashed border-slate-200 dark:border-slate-700 p-3">
+    <form action={handleSubmit} className="mt-3 space-y-2 rounded-xl border border-dashed border-border p-3">
       <input type="hidden" name="order" value={nextOrder} />
       <input
         name="title"
         placeholder="Título da aula"
         required
-        className="h-10 w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 text-sm text-slate-900 dark:text-white outline-none placeholder:text-slate-400 focus:border-violet-500"
+        className="h-10 w-full rounded-lg border border-border bg-card px-3 text-sm text-foreground outline-none placeholder:text-muted-foreground focus:border-primary"
       />
       <div className="flex gap-2">
         <input
           name="youtubeVideoId"
           placeholder="ID do vídeo no YouTube"
           required
-          className="h-10 flex-1 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 text-sm text-slate-900 dark:text-white outline-none placeholder:text-slate-400 focus:border-violet-500"
+          className="h-10 flex-1 rounded-lg border border-border bg-card px-3 text-sm text-foreground outline-none placeholder:text-muted-foreground focus:border-primary"
         />
         <input
           name="duration"
@@ -205,25 +205,25 @@ function AddLessonForm({
           min="0"
           placeholder="Duração (s)"
           required
-          className="h-10 w-32 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 text-sm text-slate-900 dark:text-white outline-none placeholder:text-slate-400 focus:border-violet-500"
+          className="h-10 w-32 rounded-lg border border-border bg-card px-3 text-sm text-foreground outline-none placeholder:text-muted-foreground focus:border-primary"
         />
       </div>
-      <label className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
-        <input type="checkbox" name="isFree" className="h-4 w-4 rounded border-slate-300" />
+      <label className="flex items-center gap-2 text-xs text-muted-foreground">
+        <input type="checkbox" name="isFree" className="h-4 w-4 rounded border-border" />
         Aula grátis (amostra)
       </label>
       <div className="flex gap-2">
         <button
           type="submit"
           disabled={isPending}
-          className="flex min-h-9 items-center rounded-lg bg-violet-600 px-3 text-xs font-semibold text-white hover:bg-violet-700 disabled:opacity-60"
+          className="flex min-h-9 items-center rounded-lg bg-primary px-3 text-xs font-semibold text-white hover:opacity-90 disabled:opacity-60"
         >
           {isPending ? '...' : 'Adicionar'}
         </button>
         <button
           type="button"
           onClick={onDone}
-          className="flex min-h-9 items-center rounded-lg px-3 text-xs font-semibold text-slate-500 dark:text-slate-400 hover:bg-slate-50"
+          className="flex min-h-9 items-center rounded-lg px-3 text-xs font-semibold text-muted-foreground hover:bg-muted"
         >
           Cancelar
         </button>

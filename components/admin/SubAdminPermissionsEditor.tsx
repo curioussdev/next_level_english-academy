@@ -42,8 +42,8 @@ export function SubAdminPermissionsEditor({ userId, initialPermissions }: { user
           key={module}
           className={`flex cursor-pointer items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs transition ${
             permissions.includes(module)
-              ? 'border-violet-300 bg-violet-50 text-violet-700 dark:border-violet-800 dark:bg-violet-500/10 dark:text-violet-300'
-              : 'border-slate-200 text-slate-500 dark:border-slate-700 dark:text-slate-400'
+              ? 'border-violet-300 bg-primary/10 text-primary dark:border-violet-800'
+              : 'border-border text-muted-foreground'
           }`}
         >
           <input type="checkbox" checked={permissions.includes(module)} onChange={() => toggleModule(module)} className="accent-violet-500" />
@@ -55,7 +55,7 @@ export function SubAdminPermissionsEditor({ userId, initialPermissions }: { user
           type="button"
           onClick={handleSave}
           disabled={isPending}
-          className="rounded-lg bg-violet-600 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-violet-700 disabled:opacity-60"
+          className="rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-white transition hover:opacity-90 disabled:opacity-60"
         >
           {isPending ? '...' : 'Guardar'}
         </button>

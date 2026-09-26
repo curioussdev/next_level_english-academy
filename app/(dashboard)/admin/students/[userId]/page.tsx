@@ -7,6 +7,7 @@ import { RoleSelect } from '@/components/admin/RoleSelect'
 import { DEMO_USERS_LIST, isDemoUser } from '@/lib/demo'
 import { canManageUser } from '@/lib/constants/roles'
 import { formatDate } from '@/lib/format'
+import { safeQuery } from '@/lib/db-safe'
 
 export default async function AdminStudentDetailPage({ params }: { params: Promise<{ userId: string }> }) {
   const { userId } = await params
@@ -15,21 +16,26 @@ export default async function AdminStudentDetailPage({ params }: { params: Promi
 
   const user = viewerIsDemo
     ? DEMO_USERS_LIST.find((u) => u.id === userId)
-    : await prisma.user.findUnique({
-        where: { id: userId },
-        select: {
-          id: true,
-          name: true,
-          email: true,
-          role: true,
-          isBlocked: true,
-          blockedReason: true,
-          createdAt: true,
-          lastLoginAt: true,
-          nif: true,
-          _count: { select: { enrollments: true } },
-        },
-      })
+    : await safeQuery(
+        () =>
+          prisma.user.findUnique({
+            where: { id: userId },
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              role: true,
+              isBlocked: true,
+              blockedReason: true,
+              createdAt: true,
+              lastLoginAt: true,
+              nif: true,
+              _count: { select: { enrollments: true } },
+            },
+          }),
+        null,
+        'detalhe do aluno',
+      )
 
   if (!user) notFound()
 
@@ -39,48 +45,48 @@ export default async function AdminStudentDetailPage({ params }: { params: Promi
   return (
     <div className="mx-auto max-w-2xl">
       <h1 className="text-3xl font-bold tracking-tight">{user.name ?? user.email}</h1>
-      <p className="mt-1 text-slate-500 dark:text-slate-400">{user.email}</p>
+      <p className="mt-1 text-muted-foreground">{user.email}</p>
 
-      <div className="mt-6 rounded-3xl bg-white dark:bg-slate-900 p-6 shadow-sm ring-1 ring-slate-100 dark:ring-slate-800">
+      <div className="mt-6 rounded-3xl bg-card p-6 shadow-sm ring-1 ring-border">
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">Role</p>
+            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Role</p>
             {canManage ? (
               <RoleSelect userId={user.id} currentRole={user.role} />
             ) : (
-              <p className="mt-1 text-sm font-medium text-slate-700 dark:text-slate-200">{user.role}{isSelf && ' (você)'}</p>
+              <p className="mt-1 text-sm font-medium text-foreground">{user.role}{isSelf && ' (você)'}</p>
             )}
           </div>
           <div>
-            <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">Status</p>
-            <p className="mt-1 text-sm font-medium text-slate-700 dark:text-slate-200">{user.isBlocked ? 'Bloqueado' : 'Ativo'}</p>
+            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Status</p>
+            <p className="mt-1 text-sm font-medium text-foreground">{user.isBlocked ? 'Bloqueado' : 'Ativo'}</p>
             {user.isBlocked && 'blockedReason' in user && user.blockedReason && (
-              <p className="mt-1 text-xs text-slate-400">Motivo: {user.blockedReason}</p>
+              <p className="mt-1 text-xs text-muted-foreground">Motivo: {user.blockedReason}</p>
             )}
           </div>
           <div>
-            <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">Membro desde</p>
-            <p className="mt-1 text-sm font-medium text-slate-700 dark:text-slate-200">{formatDate(user.createdAt)}</p>
+            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Membro desde</p>
+            <p className="mt-1 text-sm font-medium text-foreground">{formatDate(user.createdAt)}</p>
           </div>
           {'_count' in user && (
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">Matrículas</p>
-              <p className="mt-1 text-sm font-medium text-slate-700 dark:text-slate-200">{user._count.enrollments}</p>
+              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Matrículas</p>
+              <p className="mt-1 text-sm font-medium text-foreground">{user._count.enrollments}</p>
             </div>
           )}
           {'nif' in user && (
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">NIF</p>
-              <p className="mt-1 text-sm font-medium text-slate-700 dark:text-slate-200">{user.nif ?? '—'}</p>
+              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">NIF</p>
+              <p className="mt-1 text-sm font-medium text-foreground">{user.nif ?? '—'}</p>
             </div>
           )}
         </div>
 
         {canManage && (
-          <div className="mt-6 flex flex-wrap gap-3 border-t border-slate-100 dark:border-slate-800 pt-6">
+          <div className="mt-6 flex flex-wrap gap-3 border-t border-border pt-6">
             <Link
               href={`/admin/students/${user.id}/edit`}
-              className="rounded-lg bg-slate-100 px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 transition hover:bg-slate-200"
+              className="rounded-lg bg-muted px-3 py-2 text-xs font-semibold text-foreground transition hover:opacity-80"
             >
               Editar perfil
             </Link>

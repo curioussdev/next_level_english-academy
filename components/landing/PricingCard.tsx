@@ -22,19 +22,23 @@ export function PricingCard({ plan }: { plan: Plan }) {
 
   return (
     <div
-      className={`relative rounded-3xl p-7 ${featured ? 'bg-gradient-to-br from-violet-600 to-blue-600 text-white shadow-2xl shadow-violet-500/20' : 'border border-slate-200 dark:border-slate-700 bg-white'}`}
+      className={`relative rounded-3xl p-7 ${
+        featured
+          ? 'bg-gradient-to-br from-violet-600 to-blue-600 text-white shadow-2xl shadow-violet-500/20'
+          : 'border border-border bg-card text-card-foreground'
+      }`}
     >
       {featured && <span className="absolute right-6 top-6 rounded-full bg-white/15 px-3 py-1 text-xs font-bold">Mais escolhido</span>}
-      <p className={`font-bold ${featured ? 'text-violet-100' : 'text-violet-600'}`}>{title}</p>
+      <p className={`font-bold ${featured ? 'text-violet-100' : 'text-primary'}`}>{title}</p>
       <p className="mt-5 text-4xl font-bold">
         {priceLabel}
-        <span className={`text-sm font-normal ${featured ? 'text-white/60' : 'text-slate-400'}`}>/mês</span>
+        <span className={`text-sm font-normal ${featured ? 'text-white/60' : 'text-muted-foreground'}`}>/mês</span>
       </p>
-      <p className={`mt-2 text-sm ${featured ? 'text-white/65' : 'text-slate-500'}`}>{text}</p>
+      <p className={`mt-2 text-sm ${featured ? 'text-white/65' : 'text-muted-foreground'}`}>{text}</p>
       <ul className="mt-7 space-y-3">
         {features.map((f) => (
           <li key={f} className="flex items-center gap-2 text-sm">
-            <Check size={16} className={featured ? 'text-teal-300' : 'text-teal-500'} />
+            <Check size={16} className={featured ? 'text-teal-300' : 'text-accent'} />
             {f}
           </li>
         ))}
@@ -44,7 +48,7 @@ export function PricingCard({ plan }: { plan: Plan }) {
         onClick={() => handleClick(plan.id)}
         disabled={isPending}
         className={`mt-8 min-h-11 w-full rounded-full py-3 text-sm font-bold transition disabled:opacity-60 ${
-          featured ? 'bg-white dark:bg-slate-900 text-violet-700 dark:text-violet-300 hover:bg-violet-50' : 'bg-slate-950 text-white hover:bg-violet-600'
+          featured ? 'bg-white text-violet-700 hover:bg-violet-50' : 'bg-primary text-primary-foreground hover:opacity-90'
         }`}
       >
         {isPending ? 'A abrir checkout...' : 'Começar agora'}

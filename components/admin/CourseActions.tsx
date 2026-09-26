@@ -24,7 +24,7 @@ export function PublishToggle({ courseId, isPublished }: { courseId: string; isP
       onClick={handleClick}
       disabled={isPending}
       className={`flex min-h-11 items-center rounded-xl px-4 text-sm font-semibold transition disabled:opacity-60 ${
-        isPublished ? 'bg-slate-100 text-slate-600 hover:bg-slate-200' : 'bg-teal-600 text-white hover:bg-teal-700'
+        isPublished ? 'bg-muted text-muted-foreground hover:opacity-80' : 'bg-success text-success-foreground hover:opacity-90'
       }`}
     >
       {isPending ? '...' : isPublished ? 'Despublicar' : 'Publicar'}
@@ -51,7 +51,7 @@ export function DeleteCourseButton({ courseId }: { courseId: string }) {
       type="button"
       onClick={handleClick}
       disabled={isPending}
-      className="flex min-h-11 items-center rounded-xl border border-red-200 px-4 text-sm font-semibold text-red-600 dark:text-red-400 transition hover:bg-red-50 disabled:opacity-60"
+      className="flex min-h-11 items-center rounded-xl border border-destructive/30 px-4 text-sm font-semibold text-destructive transition hover:bg-destructive/10 disabled:opacity-60"
     >
       {isPending ? '...' : 'Apagar curso'}
     </button>

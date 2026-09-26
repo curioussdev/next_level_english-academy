@@ -82,6 +82,11 @@ export const DEMO_USERS_LIST = [
   { id: 'demo-tenant-admin', name: 'Sub-admin Demo', email: 'subadmin@nextlevel.pt', role: 'TENANT_ADMIN' as const, isBlocked: false, createdAt: new Date('2026-02-01') },
 ]
 
+export const DEMO_STAFF_OPTIONS = [
+  { id: 'demo-admin', name: 'Admin Demo' },
+  { id: 'demo-tenant-admin', name: 'Sub-admin Demo' },
+]
+
 export const DEMO_LEADS = [
   {
     id: 'demo-lead-1',
@@ -92,7 +97,12 @@ export const DEMO_LEADS = [
     status: 'NEW' as const,
     priority: 'HIGH',
     notes: 'Pediu informação sobre o plano Pro.',
-    tags: [] as string[],
+    tags: ['Plano Pro'] as string[],
+    assignedTo: 'demo-admin',
+    nextFollowUp: new Date(Date.now() + 2 * 86400000),
+    lastContactDate: null,
+    createdAt: new Date(Date.now() - 1 * 86400000),
+    userId: null,
   },
   {
     id: 'demo-lead-2',
@@ -104,6 +114,11 @@ export const DEMO_LEADS = [
     priority: 'MEDIUM',
     notes: null,
     tags: [] as string[],
+    assignedTo: 'demo-tenant-admin',
+    nextFollowUp: new Date(Date.now() - 1 * 86400000),
+    lastContactDate: new Date(Date.now() - 3 * 86400000),
+    createdAt: new Date(Date.now() - 5 * 86400000),
+    userId: null,
   },
   {
     id: 'demo-lead-3',
@@ -114,7 +129,12 @@ export const DEMO_LEADS = [
     status: 'INTERESTED' as const,
     priority: 'HIGH',
     notes: 'Indicada pela Mariana Costa.',
-    tags: [] as string[],
+    tags: ['Urgente', 'Indicação'] as string[],
+    assignedTo: 'demo-admin',
+    nextFollowUp: new Date(Date.now() + 1 * 86400000),
+    lastContactDate: new Date(Date.now() - 1 * 86400000),
+    createdAt: new Date(Date.now() - 4 * 86400000),
+    userId: null,
   },
   {
     id: 'demo-lead-4',
@@ -126,6 +146,11 @@ export const DEMO_LEADS = [
     priority: 'LOW',
     notes: 'Vai decidir depois do fim do mês.',
     tags: [] as string[],
+    assignedTo: null,
+    nextFollowUp: new Date(Date.now() + 10 * 86400000),
+    lastContactDate: new Date(Date.now() - 6 * 86400000),
+    createdAt: new Date(Date.now() - 10 * 86400000),
+    userId: null,
   },
   {
     id: 'demo-lead-5',
@@ -136,7 +161,12 @@ export const DEMO_LEADS = [
     status: 'ENROLLED' as const,
     priority: 'MEDIUM',
     notes: 'Matriculada no English for Everyday Life.',
-    tags: [] as string[],
+    tags: ['Cliente'] as string[],
+    assignedTo: 'demo-tenant-admin',
+    nextFollowUp: null,
+    lastContactDate: new Date(Date.now() - 2 * 86400000),
+    createdAt: new Date(Date.now() - 20 * 86400000),
+    userId: 'demo-user-1',
   },
   {
     id: 'demo-lead-6',
@@ -148,6 +178,11 @@ export const DEMO_LEADS = [
     priority: 'LOW',
     notes: 'Optou por outro método.',
     tags: [] as string[],
+    assignedTo: null,
+    nextFollowUp: null,
+    lastContactDate: new Date(Date.now() - 15 * 86400000),
+    createdAt: new Date(Date.now() - 30 * 86400000),
+    userId: null,
   },
 ]
 

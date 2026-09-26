@@ -5,6 +5,7 @@ import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { getStripe } from '@/lib/stripe'
 import { isDemoUser } from '@/lib/demo'
+import { getAppUrl } from '@/lib/env'
 import type { PlanId } from '@/lib/plans'
 
 // Os Price IDs ficam só no servidor — nunca expostos ao cliente.
@@ -32,7 +33,7 @@ export async function createPlanCheckoutSession(planId: PlanId) {
   }
 
   const user = await prisma.user.findUniqueOrThrow({ where: { id: session.user.id } })
-  const appUrl = process.env.NEXTAUTH_URL ?? 'http://localhost:3000'
+  const appUrl = getAppUrl()
 
   const checkoutSession = await getStripe().checkout.sessions.create({
     mode: 'subscription',
@@ -71,7 +72,7 @@ export async function createCourseCheckoutSession(courseId: string) {
   }
 
   const user = await prisma.user.findUniqueOrThrow({ where: { id: session.user.id } })
-  const appUrl = process.env.NEXTAUTH_URL ?? 'http://localhost:3000'
+  const appUrl = getAppUrl()
 
   const checkoutSession = await getStripe().checkout.sessions.create({
     mode: 'payment',

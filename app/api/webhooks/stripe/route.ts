@@ -1,5 +1,5 @@
 import { headers } from 'next/headers'
-import { NextResponse } from 'next/server'
+import { NextResponse, after } from 'next/server'
 import Stripe from 'stripe'
 import { getStripe } from '@/lib/stripe'
 import { prisma } from '@/lib/prisma'
@@ -7,6 +7,7 @@ import { logActivity } from '@/lib/activity'
 import { sendEmail, CONTACT_EMAIL } from '@/lib/resend'
 import { newPurchaseNotificationEmail } from '@/lib/email-templates'
 import { formatCurrency } from '@/lib/format'
+import { notifyStaffOfEvent } from '@/lib/actions/staff-notifications'
 
 export async function POST(req: Request) {
   const body = await req.text()
@@ -81,20 +82,43 @@ export async function POST(req: Request) {
         metadata: { amount: (session.amount_total ?? 0) / 100, mode: session.mode },
       })
 
-      if (CONTACT_EMAIL) {
-        const buyer = await prisma.user.findUnique({ where: { id: userId }, select: { name: true, email: true } })
+      {
+        const amountLabel = formatCurrency((session.amount_total ?? 0) / 100, (session.currency ?? 'eur').toUpperCase())
         const description =
           session.mode === 'subscription'
             ? `plano ${session.metadata?.planId ?? 'desconhecido'}`
             : `o curso "${session.metadata?.courseId ?? 'desconhecido'}"`
-        await sendEmail({
-          to: CONTACT_EMAIL,
-          subject: 'Nova compra confirmada — Next Level',
-          html: newPurchaseNotificationEmail(
-            buyer ? (buyer.name ?? buyer.email) : userId,
-            description,
-            formatCurrency((session.amount_total ?? 0) / 100, (session.currency ?? 'eur').toUpperCase()),
-          ),
+
+        // Stripe espera uma resposta rápida a este webhook (senão reenvia o
+        // evento) — email e notificações correm depois de já termos
+        // respondido 200, não antes.
+        after(async () => {
+          const buyer = await prisma.user.findUnique({ where: { id: userId }, select: { name: true, email: true } })
+
+          await prisma.notification
+            .create({
+              data: {
+                userId,
+                title: 'Compra confirmada',
+                message: `A sua compra de ${description} foi confirmada. Bom estudo!`,
+                type: 'SYSTEM',
+              },
+            })
+            .catch(() => {})
+
+          await notifyStaffOfEvent(
+            'Nova compra confirmada',
+            `${buyer ? (buyer.name ?? buyer.email) : userId} comprou ${description} (${amountLabel}).`,
+            '/admin/sales',
+          )
+
+          if (CONTACT_EMAIL) {
+            await sendEmail({
+              to: CONTACT_EMAIL,
+              subject: 'Nova compra confirmada — Next Level',
+              html: newPurchaseNotificationEmail(buyer ? (buyer.name ?? buyer.email) : userId, description, amountLabel),
+            })
+          }
         })
       }
       break

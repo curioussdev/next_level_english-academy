@@ -24,7 +24,7 @@ export function BlockUserButton({ userId, isBlocked }: { userId: string; isBlock
       onClick={handleClick}
       disabled={isPending}
       className={`min-h-9 rounded-lg px-3 text-xs font-semibold transition disabled:opacity-60 ${
-        isBlocked ? 'bg-teal-50 dark:bg-teal-500/10 text-teal-700 dark:text-teal-300 hover:bg-teal-100' : 'bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 hover:bg-red-100'
+        isBlocked ? 'bg-success/10 text-success hover:bg-success/20' : 'bg-destructive/10 text-destructive hover:bg-destructive/20'
       }`}
     >
       {isPending ? '...' : isBlocked ? 'Desbloquear' : 'Bloquear'}

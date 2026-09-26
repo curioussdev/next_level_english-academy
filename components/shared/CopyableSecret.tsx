@@ -18,20 +18,20 @@ export function CopyableSecret({ label, value }: { label: string; value: string 
   }
 
   return (
-    <div className="rounded-2xl border border-amber-200 bg-amber-50 dark:bg-amber-500/10 p-4">
-      <p className="text-xs font-semibold uppercase tracking-wider text-amber-700 dark:text-amber-300">{label}</p>
+    <div className="rounded-2xl border border-warning/30 bg-warning/10 p-4">
+      <p className="text-xs font-semibold uppercase tracking-wider text-warning">{label}</p>
       <div className="mt-2 flex items-center gap-2">
-        <code className="flex-1 rounded-lg bg-white dark:bg-slate-900 px-3 py-2 font-mono text-sm text-slate-900 dark:text-white ring-1 ring-amber-200">{value}</code>
+        <code className="flex-1 rounded-lg bg-card px-3 py-2 font-mono text-sm text-foreground ring-1 ring-warning/30">{value}</code>
         <button
           type="button"
           onClick={handleCopy}
           aria-label="Copiar"
-          className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-amber-100 text-amber-700 dark:text-amber-300 transition hover:bg-amber-200"
+          className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-warning/10 text-warning transition hover:bg-warning/20"
         >
           {copied ? <Check size={18} /> : <Copy size={18} />}
         </button>
       </div>
-      <p className="mt-2 text-xs text-amber-700 dark:text-amber-300">Guarde-a agora — não voltará a ser mostrada.</p>
+      <p className="mt-2 text-xs text-warning">Guarde-a agora — não voltará a ser mostrada.</p>
     </div>
   )
 }
